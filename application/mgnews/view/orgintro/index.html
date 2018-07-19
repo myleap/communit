@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>金麦粒</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+        <link href="__STATIC__/css/Hui.css?v=1" rel="stylesheet" type="text/css" />
+        <link href="__STATIC__/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <link rel="icon" href="__ROOT__/image/logo.png">
+        <script src="__STATIC__/js/H.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/jquery.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/utils.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/ajaxUtil.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/vue.min.js" type="text/javascript"></script>
+        <style type="text/css">
+            [v-cloak] {
+                display: none;
+            }
+            .shadow2{
+                width: 80%;
+                background: url(1.jpg) no-repeat;
+                margin-top: 20px;
+                box-shadow: 10px 8px 10px 3px #000;  /*Chrome 6+, Firefox 4+, IE 9+, iOS 5+, Opera 10.50+*/
+                -webkit-box-shadow: 10px 8px 10px 3px #000;
+                -moz-box-shadow: 10px 8px 10px 3px #000;
+                /*background-clip: padding-box;*/
+                opacity: 0.6; /*透明度*/
+            }
+            html, body {
+                color: #6B787F;
+                padding: 0;
+                height: 100%;
+                font-family: 'PT Sans' !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div id ="broadcast" class="container-fluid " style="" >
+            <div  id="header" class="row  H-theme-background-red" style=" padding:5px 0 0 0;">
+                <label class="center-block text-center" style="color:#fff;">温馨提示</label>
+            </div>
+            <div class="row shadow2 center-block" >
+                <p>很抱歉，您还不是我们的会员，请你尽快完善个人信息，享受会员服务。</p>
+                <p>本公众号仅服务于上市公司</p>
+                <p>点击确定申请获取查阅权限</p>
+                <!--<p>进入“官网主页”点击“社群”设置想要关注的公司</p>-->
+
+            </div>
+            <div id="footer" class="row" style="margin: 20px" >
+                <div class="col-xs-6 col-md-6 col-sm-6 text-center">
+                    <div @click="getorg"  class="btn btn-success">确定</div>
+                </div>
+                <div class="col-xs-6 col-md-6  col-sm-6 text-center">
+                    <div @click="cancel"  class="btn btn-info">取消</div>
+                </div>
+                <!--                <div class="col-xs-6 col-md-6 col-sm-6 text-center">
+                                    <div @click="help"  class="btn btn-success">使用帮助</div>
+                                </div>
+                                <div class="col-xs-6 col-md-6  col-sm-6 text-center">
+                                    <div @click="myleap"  class="btn btn-info">官网主页</div>
+                                </div>-->
+            </div>
+        </div>
+
+        <script src="__STATIC__/bootstrap-3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/notices.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                var listVue = new Vue({
+                    el: '#broadcast',
+                    created: function () {
+                    },
+                    data: {
+
+                    },
+                    methods: {
+                        help: function () {
+                            window.location.href = "__ROOT__/index.php/mgnews/orgintro/help";
+//                            var url = "__ROOT__/image/sybz.jpg";
+//                            window.showModalDialog(url, null, "dialogHeight:500px; dialogWidth:600px; resizable:yes"); 
+                        },
+                        myleap: function () {
+                            window.top.location.href = "__ROOT__/index.php/main/";
+                        },
+                        cancel: function () {
+                            window.top.WeixinJSBridge.call('closeWindow');
+                        },
+                        getorg: function () {
+                            var data = {
+                                uid: localStorage.getItem("u_id"),
+                                group_id: localStorage.getItem("group_id"),
+                                company_code: localStorage.getItem("company_code"),
+                            };
+                            $ajaxutil.dopost("Group/joinGroup", data, function (ret, err) {
+                                if (ret && ret.resCode == 200) {
+                                    alert("已申请，请等待后台审批");
+                                    window.top.WeixinJSBridge.call('closeWindow');
+                                } else if (err) {
+                                    alert(JSON.stringify(err));
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

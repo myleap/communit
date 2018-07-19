@@ -1,0 +1,224 @@
+﻿<!doctype html>
+<html class="H-theme-background-color-white">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+        <title>实名认证</title>
+        <link href="__STATIC__/css/Hui.css" rel="stylesheet" type="text/css" />
+        <script src="__STATIC__/js/H.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/vue.min.js" type="text/javascript"></script>
+
+        <script src="__STATIC__/js/common/jquery.js"></script>
+        <script src="__STATIC__/js/common/iscroll-zoom.js"></script>
+
+        <link href="__STATIC__/css/photoClip/topMenu.css" rel="stylesheet">
+        <script src="__STATIC__/js/photoClip/topMenu.js"></script>
+
+        <link href="__STATIC__/css/photoClip/style.css" rel="stylesheet">
+        <script src="__STATIC__/js/photoClip/sonic.js"></script>
+        <script src="__STATIC__/js/photoClip/comm.js"></script>
+        <script src="__STATIC__/js/photoClip/hammer.js"></script>
+        <script src="__STATIC__/js/photoClip/photoClipInterface.js"></script>
+        <script src="__STATIC__/js/photoClip/jquery.photoClip.js?v=1"></script>
+
+        <style type="text/css"></style>
+    </head>
+    <body>
+        <div id="headPortrait-interface">
+
+            <!--顶部菜单-->
+            <div id="topMenu-wrapper">
+            </div>
+
+            <!--头像-->
+            <div id="headPortrait-wrapper">
+                <div class="H-flexbox-horizontal H-theme-background-color-white H-border-vertical-bottom-after">
+                    <div class="H-flex-item H-padding-10">
+                        <strong class="H-font-weight-normal font-weight-500 H-font-size-16 H-display-block">点这里上传名片</strong>
+                        <div class="H-font-size-14 H-theme-font-color-999 H-text-show-row-2 H-margin-vertical-top-2">
+                            请上传清晰有效的名片,以便工作人员审核!
+                        </div>
+                    </div>
+                    <div class="H-padding-vertical-both-10"><img src="../../../image/logo.png" class="H-display-block H-margin-horizontal-right-10" style="width: 70px; height: 70px;" />
+                    </div>
+                </div>
+            </div>
+
+            <!--底部菜单
+            <div id="bottomMenu-wrapper">
+            </div>-->
+        </div>
+
+        <div id="photoClip-interface" style="display: none;width: 100%;height: 100%;">
+
+            <!--顶部菜单-->
+            <div id="topMenu-wrapper2">
+            </div>
+            <!--图片加载-->
+            <div id="photoClip-wrapper">
+                <div class="lazy_tip" id="lazy_tip"><span>1%</span><br>	载入中......</div>
+                <div class="lazy_cover"></div>
+                <div class="pic_edit">
+                    <div id="clipArea"></div>
+                    <input type="file" id="file" style="opacity: 0;position: fixed;bottom: -100px">
+                </div>
+                <img src="" fileName="" id="hit">
+            </div>
+        </div>
+        <div id = "certification">
+            <div class="H-border-vertical-both-after">
+                <div class="H-flexbox-horizontal H-border-vertical-bottom-margin-left-10-after">
+                    <span class="H-vertical-middle H-padding-horizontal-left-10 H-theme-background-color-white H-font-size-16">姓名：</span>
+                    <input id="name" type="text" v-model="name" class="H-textbox H-vertical-align-middle H-vertical-middle H-font-size-16 H-flex-item H-box-sizing-border-box H-border-none H-outline-none H-padding-12" placeholder="输入您的姓名" />
+                </div>
+                <div class="H-flexbox-horizontal H-border-vertical-bottom-after">
+                    <span class="H-icon H-vertical-middle H-padding-horizontal-left-10 H-theme-background-color-white">
+                        手机号码：
+                    </span>
+                    <input type="number" v-model="mobile" class="H-textbox H-text-show-row-1 H-vertical-align-middle H-vertical-middle H-font-size-16 H-flex-item H-box-sizing-border-box H-border-none H-outline-none H-padding-12" placeholder="请输入您的手机号" />
+                    <span @click="getcode" class="H-vertical-middle H-padding-horizontal-right-10 H-theme-background-color-white H-theme-font-color1 H-font-size-14">{{btn}}</span>
+                </div>
+                <div class="H-flexbox-horizontal H-border-vertical-bottom-margin-left-10-after">
+                    <span class="H-vertical-middle H-padding-horizontal-left-10 H-theme-background-color-white H-font-size-16">验证码：</span>
+                    <input id="company" type="text" v-model="code" class="H-textbox H-vertical-align-middle H-vertical-middle H-font-size-16 H-flex-item H-box-sizing-border-box H-border-none H-outline-none H-padding-12" placeholder="输入验证码" />
+                </div>
+                <div class="H-flexbox-horizontal H-border-vertical-bottom-margin-left-10-after">
+                    <span class="H-vertical-middle H-padding-horizontal-left-10 H-theme-background-color-white H-font-size-16">公司：</span>
+                    <input id="company" type="text" v-model="company" class="H-textbox H-vertical-align-middle H-vertical-middle H-font-size-16 H-flex-item H-box-sizing-border-box H-border-none H-outline-none H-padding-12" placeholder="输入您的公司" />
+                </div>
+                <div class="H-flexbox-horizontal H-border-vertical-bottom-margin-left-10-after">
+                    <span class="H-vertical-middle H-padding-horizontal-left-10 H-theme-background-color-white H-font-size-16">岗位：</span>
+                    <input id="job" type="text" v-model="job" class="H-textbox H-vertical-align-middle H-vertical-middle H-font-size-16 H-flex-item H-box-sizing-border-box H-border-none H-outline-none H-padding-12" placeholder="输入您的职务" />
+                </div>
+            </div>   
+            <button @click="submit" class="H-button H-width-100-percent  H-font-size-15 H-outline-none H-padding-vertical-both-12 H-padding-horizontal-both-20 H-theme-background-color9 H-theme-font-color-white H-theme-border-color9 H-theme-border-color9-click H-theme-background-color9-click H-theme-font-color9-click">提交</button>
+        </div>
+        <script src="__STATIC__/js/common/usercenter.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/utils.js?v=1" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/ajaxUtil.js?v=1" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/chatwin.js?v=1"></script>
+        <script type="text/javascript">
+var certification;
+var isSend = false;
+var user = JSON.parse(window.localStorage.getItem("user_info"));
+H.ready(function () {
+
+    photoClipInterfaceInit(
+            "#photoClip-interface",
+            "#photoClip-interface #topMenu-wrapper2 .topMenu-rightName",
+            "#headPortrait-interface",
+            "#headPortrait-interface #headPortrait-wrapper",
+            function (filepath) {
+//                            alert(filepath);
+                var file = convertBase64UrlToBlob(filepath);
+                var formData = new FormData();
+                formData.append('file', file);
+                $chatwin.uploadFile(formData, function (ret, err) {
+                    console.log(JSON.stringify(ret));
+                    certification.cardSrc = ret.imgurl;
+                });
+            });
+    certification = new Vue({
+        el: '#certification',
+        data: {
+            cardSrc: "../../../image/logo.png",
+            btn: "获取验证码",
+            mobile: "",
+            code: "",
+            company: "",
+            job: "",
+            name: ""
+        },
+        methods: {
+            submit: function () {
+                if ($utils.isNullOrEmpty(this.mobile)) {
+                    alert("手机号为空！");
+                    return;
+                } else if ($utils.isNullOrEmpty(this.code)) {
+                    alert("验证码为空！");
+                    return;
+                }
+//                var data = {mobile: this.mobile, code: this.code, type: 2};
+
+//                $usercenter.checkVerify(data, function (ret, err) {
+//                    console.log(JSON.stringify(ret));
+//                    if (ret && ret.resCode == 200) {
+//                        alert("绑定成功");
+//                    } else {
+//                        alert(JSON.stringify(err.info));
+//                    }
+//                });
+//参数 uid（必传），code（验证码） ，type（传2），card_url（证件照片的路径），
+//user_nicename（姓名），company（公司），job（职位）
+                var data = {
+                    mobile: this.mobile,
+                    uid: user.id,
+                    code: this.code,
+                    type: 2,
+                    card_url: this.cardSrc,
+                    user_nicename: this.name,
+                    company: this.company,
+                    job: this.job};
+                console.log("999999999999999999999999999" + JSON.stringify(data) + JSON.stringify(user));
+                $usercenter.certification(data, function (ret, err) {
+                    console.log(JSON.stringify(ret));
+                    if (ret && ret.resCode == 200) {
+                        $ajaxutil.post("login/getuser", {}, function (ret, err) {
+                            if (ret !== "-1") {
+                                window.localStorage.setItem("user_info", JSON.stringify(ret));
+                            }
+                        });
+                        alert("认证已提交!");
+                        H.closeWin();
+                    } else {
+                        alert("提交失败，请确认信息无误");
+                    }
+                });
+            },
+            getcode: function () {
+                if ($utils.isNullOrEmpty(this.mobile)) {
+                    alert("请先输入手机号");
+                    return;
+                }
+                if (!isSend) {
+                    var data = {mobile: certification.mobile};
+                    $usercenter.sendsVerify(data, function (ret, err) {
+                        console.log(JSON.stringify(ret));
+                        if (ret && ret.resCode == 200) {
+                            var i = 60;
+                            isSend = true;
+                            var interval = setInterval(function () {
+                                certification.btn = (i--) + "s后再次获取";
+                                if (i == 0) {
+                                    certification.btn = "获取验证码";
+                                    clearInterval(interval);
+                                    isSend = false;
+                                }
+                            }, 1000);
+
+                        }
+                    });
+                }
+
+            }
+        }
+    });
+    function convertBase64UrlToBlob(urlData) {
+
+        var bytes = window.atob(urlData.split(',')[1]);        //去掉url的头，并转换为byte
+
+        //处理异常,将ascii码小于0的转换为大于0
+        var ab = new ArrayBuffer(bytes.length);
+        var ia = new Uint8Array(ab);
+        for (var i = 0; i < bytes.length; i++) {
+            ia[i] = bytes.charCodeAt(i);
+        }
+
+        return new Blob([ab], {type: 'image/png'});
+    }
+});
+        </script>
+    </body>
+
+</html>

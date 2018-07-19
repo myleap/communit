@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>金麦粒</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+        <link href="__STATIC__/css/Hui.css?v=1" rel="stylesheet" type="text/css" />
+        <link rel="icon" href="__ROOT__/image/logo.png">
+        <link href="__STATIC__/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <script src="__STATIC__/js/H.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/jquery.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/utils.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/ajaxUtil.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/vue.min.js" type="text/javascript"></script>
+        <script src="https://cdn.ronghub.com/RongIMLib-2.2.5.min.js" type="text/javascript"></script>
+        <style type="text/css">
+            [v-cloak] {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div id="news"  v-cloak>
+            <!--<button type="button" class="btn btn-primary" disablead="false" v-on:click ="showdetail" style="width: 100%;">可视化详情</button>-->
+            <div  v-for="(item,index) in list " v-if="item.sentiment !='6'">
+                <div  v-on:click="showpdf(item)" class="H-flexbox-horizontal H-theme-background-color-white H-border-vertical-bottom-after H-clear-both">
+                    <div class="H-flex-item H-padding-10 H-position-relative H-box-sizing-border-box" style="height: 90px; ">
+                        <strong  class="H-font-weight-normal font-weight-500 H-font-size-16 H-display-block H-text-show-row-2">{{item.title}}</strong>
+                        <p class="H-font-size-12 H-theme-font-color-999 H-position-absolute H-z-index-10 H-margin-0" style="bottom: 10px; left: 10px; right: 10px;"><span class="H-float-left">{{item.source}}</span><span class="H-float-right">{{item.createtime}}</span></p>
+                    </div>
+                </div>
+            </div>
+            <div v-if="isnull"  style="height:100%;z-index: 999;">
+                <img src="__ROOT__/image/mapbg.jpg" style="width:100%;height:auto;z-index: 999;position: absolute" > 
+            </div>
+            <!--<div id="bottom" v-on:click ="showdetail" style="width: 100%;text-align: center;" >可视化详情</div>-->
+            <!--<div id="bottom" v-on:click ="getmore" style="width: 100%;text-align: center;" >{{noticeinfo}}</div>-->
+        </div>
+        <script src="__STATIC__/js/common/notices.js" type="text/javascript"></script>
+        <script type="text/javascript">
+var user = window.localStorage.getItem("user_info")
+var pagesize = 10;
+var pagenum = 1;
+H.ready(function () {
+    var listVue = new Vue({
+        el: '#news',
+        created: function () {
+            queryMsgs(this);
+
+        },
+        data: {
+            list: [],
+            noticeinfo: "",
+            isnull: false
+        },
+        methods: {
+            showpdf: function (item) {
+                if (!$utils.isNullOrEmpty(item.url)) {
+                    window.top.location = item.url;
+                }
+            },
+            edititem: function (item) {
+                var itemparams = new Object();
+                itemparams.title = "新闻详情";
+                itemparams.pre = "新闻列表";
+                itemparams.item = item;
+                window.localStorage.setItem("itemparams", JSON.stringify(itemparams));
+                H.openWin('edit_win', '__ROOT__/index.php/mgnews/listnews/detail');
+            },
+            getmore: function () {
+                queryMsgs(this);
+            },
+            showdetail: function () {
+                parent.window.location = "__ROOT__/index.php/grains";
+
+            }
+        }
+    });
+});
+function containtype(arr) {
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].sentiment != '6') {
+            return true
+        }
+    }
+    return false
+}
+function queryMsgs(vue) {
+    var userinfo = JSON.parse(localStorage.getItem("userinfo"));
+
+    var data = {
+        unionid: userinfo.unionid,
+        openid: userinfo.user_login,
+        start_time: localStorage.getItem("start_time"),
+        end_time: localStorage.getItem("end_time"),
+        orgcode: localStorage.getItem("orgcode"),
+        page: pagenum,
+        limit: pagesize
+    };
+//                alert(JSON.stringify(data))
+    vue.noticeinfo = "加载中。。。";
+    $ajaxutil.dopost("Collect/select_project_group_news", data, function (ret, err) {
+        if (ret && ret.resCode == 200) {
+
+            if (ret.normal == 1) {
+                if ($utils.isNullOrEmpty(ret.objects) || ret.objects.length == 0) {
+                    vue.noticeinfo = "无更多数据";
+                    vue.isnull = true;
+                } else if (ret.objects.length < 10) {
+                    vue.noticeinfo = "无更多数据";
+                    if (!containtype(ret.objects)) {
+                        vue.isnull = true;
+                    }
+                    vue.list = vue.list.concat(ret.objects);
+                    pagenum++;
+                } else {
+                    vue.list = vue.list.concat(ret.objects);
+                    vue.noticeinfo = "加载更多"
+                    if (!containtype(ret.objects)) {
+                        vue.isnull = true;
+                    }
+                    pagenum++;
+                }
+            }
+        } else if (err) {
+//            alert(JSON.stringify(err));
+   if (window.confirm("请求超时，点击确认重新发送。")) {
+                queryMsgs(vue);
+            }
+        }
+    });
+}
+        </script>
+    </body>
+</html>

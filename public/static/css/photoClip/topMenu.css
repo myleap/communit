@@ -1,0 +1,52 @@
+
+
+.topMenu 
+{
+	position: relative;
+	width: 100%;
+	height: 4rem;
+	line-height: 4rem;
+	/*background: #990000;*/
+}
+.topMenu-name 
+{
+	position: absolute;
+}
+.topMenu-middleName 
+{
+	left: 7rem;
+	right: 7rem;
+	text-align: center;
+}
+.topMenu-leftName 
+{
+	left: 1rem;
+	text-align: left;
+}
+.topMenu-rightName 
+{
+	right: 1rem;
+	text-align: right;
+}
+.topMenu-icon 
+{
+	position: absolute;
+	margin: 1rem 0;
+	width: 2rem;
+	height: 2rem;
+	line-height: 2rem;
+	text-align: left;
+}
+.topMenu-icon img 
+{
+	width: 100%;
+	height: 100%;
+}
+.topMenu-leftIcon 
+{
+	left: 1rem;
+}
+.topMenu-rightIcon 
+{
+	right: 1rem;
+}

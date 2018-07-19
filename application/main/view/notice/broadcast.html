@@ -1,0 +1,199 @@
+{include file="header"} 
+
+<div id="broadcast" style="width:100%;height:100%;object-fit: cover">
+    <video  id="vid" style="display: none">
+    </video>
+
+    <div  v-for="(item,index) in list" :id="index">
+        <div  class="H-line-height-0" @click = "play(index,item)">
+            <img v-bind:src="getImg(item)" class="H-width-100-percent"/>
+        </div>
+        <div class="H-flexbox-horizontal H-theme-background-color-white H-border-vertical-bottom-after H-clear-both">
+            <!--            <div class="H-flex-item H-text-align-left">
+                            <span class="H-theme-background-color2 H-theme-font-color-white H-padding-horizontal-both-5 H-padding-vertical-both-3 H-border-radius-3">{{item.title}}</span>
+                        </div>        -->
+            <div class="H-flex-item H-padding-10 H-position-relative H-box-sizing-border-box" style="height: 80px; ">
+                <strong  class="H-font-weight-normal font-weight-500 H-font-size-16 H-display-block H-text-show-row-1">{{item.title}}</strong>
+                <p class="H-font-size-12 H-theme-font-color-999 H-position-absolute H-z-index-10 H-margin-0" style="bottom: 20px; left: 10px; right: 10px;"><span class="H-float-left">{{item.name}}({{item.code}})</span><span class="H-float-right">{{item.createtime}}</span></p>          
+            </div>
+        </div>
+        <!--        <div class="H-flexbox-vertical H-vertical-middle H-font-size-12 H-padding-horizontal-both-10 H-padding-vertical-both-8 H-theme-background-color-white">
+                    <div class="H-flex-item H-text-align-left H-font-weight-bold H-font-size-12 H-theme-font-color-666">
+                        <span class="H-theme-font-color7 ">{{item.name}}</span>({{item.code}})
+                    </div> 
+                    <div class="H-flex-item H-text-align-right H-font-weight-bold H-font-size-12 H-theme-font-color-666">
+                        <span class="H-theme-font-color7 H-margin-horizontal-left-8">{{item.createtime}}</span>
+                    </div>
+                </div>-->
+        <div class="H-padding-vertical-bottom-10"></div>
+    </div>
+    <div id="bottom" @click ="getmore" style="width: 100%;text-align: center;" >{{noticeinfo}}</div>
+</div>
+
+<script src="__STATIC__/js/common/notices.js" type="text/javascript"></script>
+<script type="text/javascript">
+//var vid = document.createElement("video");
+var vid = document.getElementById("vid")
+var user = window.localStorage.getItem("user_info")
+var prefs = {autoplay: false, autoWifi: false};
+if (!$utils.isNullOrEmpty(JSON.parse(localStorage.getItem("prefs")))) {
+    prefs = JSON.parse(localStorage.getItem("prefs"));
+}
+var pagesize = 10;
+var pagenum = 1;
+var isCurrent = true;
+H.ready(function () {
+    pushHistory();
+    window.addEventListener("popstate", function (e) {  //回调函数中实现需要的功能
+        if (isCurrent) {
+            window.top.WeixinJSBridge.call('closeWindow');
+        }
+        isCurrent = true;
+    }, false);
+    var listVue = new Vue({
+        el: '#broadcast',
+        data: {
+            list: [],
+            autoPlay: prefs.autoPlay,
+            autoWifi: prefs.autoWifi,
+            noticeinfo: ""
+        },
+        created: function () {
+//            initplay();
+            queryMsgs(this);
+        },
+        mounted: function () {
+            var currentindex = 0;
+//            window.addEventListener("scroll", function (e) {
+//                // 元素到顶部的距离
+//                var s = document.getElementById(currentindex).offsetTop - document.body.scrollTop
+////                console.log(s + "++++++++++" + currentindex + "+offsetHeight" + document.getElementById(currentindex).offsetHeight);
+//                if (s < 0) {
+//                    currentindex++;
+//                } else if (s > document.getElementById(currentindex).offsetHeight) {
+//                    currentindex--;
+//                }
+//                console.log(currentindex);
+//            });
+
+//            document.addEventListener('touchstart', function (event) {
+//                event.preventDefault();
+//            }, false);
+//            document.addEventListener('touchmove', touch, false);
+//            document.addEventListener('touchend', touch, false);
+//            window.addEventListener("scroll", function (e) {
+//                alert("scroll");
+//                document.getElementById("bottom")
+//                document.body.clientHeight;
+//                document.body.scrollTop;
+//                document.body.scrollHeight;
+//                document.getElementById("bottom").offsetHeight;
+//                document.getElementById("bottom").offsetTop;
+//
+//                var s = document.getElementById("bottom").offsetTop - document.body.scrollTop;
+//                console.log(document.getElementById("bottom").offsetHeight / 2 + s - window.innerHeight);
+//                if (Math.abs(document.getElementById("bottom").offsetHeight / 2 + s - window.innerHeight) < 10) {
+//                    alert("ok");
+//                    return;
+//                }
+//            }, false);
+        },
+        methods: {
+            play: function (index, item) {
+//                document.getElementById(index).appendChild(vid);
+//                vid.src = "https://www.myleap.cn/myleapAdmin/data/upload/default/20170815/5992c5fec78fd.mp4";
+//                vid.play();
+                if (!$utils.isNullOrEmpty(item.path)) {
+                    window.top.location = item.path;
+                    isCurrent = false;
+                }
+            },
+            getoffset: function (index, item) {
+                alert(index + "+scrollTop" + document.body.scrollTop + "+offsetTop" + document.getElementById(index).offsetTop);
+//                console.log(document.getElementById(index).style.offtop);
+            },
+            getmore: function () {
+                queryMsgs(this);
+            },
+            getImg: function (item) {
+                if ($utils.isNullOrEmpty(item.thumb)) {
+                    return "../../../image/IMG_2937.JPG";
+                } else {
+                    console.log(item.thumb);
+                    return item.thumb;
+                }
+            }
+        }
+    });
+    function queryMsgs(vue) {
+        var data = {
+            uid: user && user.id ? user.id : "",
+            type: "1",
+            page: pagenum,
+            limit: pagesize
+        };
+        vue.noticeinfo = "加载中。。。";
+        $notice.getList(data, function (ret, err) {
+            if (ret.resCode == 200) {
+                if ($utils.isNullOrEmpty(ret.objects) || ret.objects.length == 0) {
+                    vue.noticeinfo = "无更多数据";
+                } else if (ret.objects.length < 10) {
+                    vue.noticeinfo = "无更多数据";
+                    vue.list = vue.list.concat(ret.objects);
+                    pagenum++;
+                } else {
+                    vue.list = vue.list.concat(ret.objects);
+                    vue.noticeinfo = "加载更多"
+                    pagenum++;
+                }
+            } else if (err) {
+                alert(JSON.stringify(err));
+            }
+        });
+    }
+});
+function pushHistory() {
+    var state = {
+        title: "title",
+        url: "#"
+    };
+    window.history.pushState(state, state.title, state.url);
+}
+function initplay() {
+    vid.controls = "controls";
+    vid.width = "100%";
+    vid.height = "200px";
+    vid.id = "video_control";
+    vid.muted = false;
+}
+//function touch(event) {
+//    var event = event || window.event;
+////    var oInp = document.getElementById("inp");
+//    switch (event.type) {
+//
+//
+//        case "touchstart":
+//
+////            oInp.innerHTML = "Touch started (" + event.touches[0].clientX + "," + event.touches[0].clientY + ")";
+////            alert("touchstart");
+//            break;
+//        case "touchend":
+//            alert(s);
+//            if (Math.abs(document.getElementById("bottom").offsetHeight / 2 + s - window.innerHeight) < 10) {
+//                alert("ok");
+//                return;
+//            }
+////            oInp.innerHTML = "<br/>Touch end (" + event.changedTouches[0].clientX + "," + event.changedTouches[0].clientY + ")";
+////            alert("touchend");
+//            break;
+//        case "touchmove":
+//            s = document.getElementById("bottom").offsetTop - document.body.scrollTop;
+////            event.preventDefault();
+////            alert("touchmove");
+////            oInp.innerHTML = "<br/>Touch moved (" + event.touches[0].clientX + "," + event.touches[0].clientY + ")";
+//            break;
+//    }
+//}
+</script>
+
+{include file="footer"}

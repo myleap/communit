@@ -1,0 +1,55 @@
+
+.lazy_tip
+{/*图片加载提示*/
+	z-index: 1001;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	margin-top: 35%;
+	font-size: 2rem;
+	color: #4eaf7a;
+	line-height: 2.5rem;
+	text-align: center;
+}
+.lazy_cover 
+{/*图片加载封面*/
+	z-index: 1000;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: black;
+	color: #4eaf7a;
+	font-size: 2rem;
+	opacity: 0.7;
+}
+.pic_edit 
+{/*图片截取编辑*/
+	z-index: 100;
+	position: fixed;
+	top: 4rem;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background:#e9e9e9; 
+	opacity:.8;
+}
+#clipArea 
+{/*裁剪视图层*/
+	width: 100%;
+	height: 100%;
+	margin: 0 auto;
+	background:#f2f2f2;
+}
+
+#hit 
+{/*最终截图后呈现的视图容器，暂时不用，被隐藏*/
+	display:none;
+	z-index: 9;
+	position: fixed;
+	top: 100%;
+	left: 100%;
+	background: gainsboro;
+}

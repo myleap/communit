@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>canvas帧--实现动画</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link href="__STATIC__/vux/vux.min.css" rel="stylesheet" type="text/css" />
+        <style>
+            .tab-swiper {
+                background-color: #fff;
+                height: 100px;
+            }
+            html,body{width: 100%;height: 100%}
+            #map{
+                height:100%;
+                width:100%; 
+            }
+
+        </style>
+    </head>
+    <body>
+
+        <div id = "map" style="height: 200%;width: 100%"></div>
+        <script src="https://unpkg.com/vue/dist/vue.js"></script>
+        <script src="__STATIC__/js/echart/echarts.js"></script>
+        <script src="__STATIC__/js/echart/china.js"></script>
+        <script src='__STATIC__/vux/vux.min.js'></script>
+        <script src="__STATIC__/js/common/jquery.js" type="text/javascript"></script>
+        <script>
+            var myChart = echarts.init(document.getElementById('map'));
+            function randomData() {
+                return Math.round(Math.random() * 1000);
+            }
+
+            var data = [{
+                    name: '北京',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '天津',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '上海',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '重庆',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '河北',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '河南',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '云南',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '辽宁',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '黑龙江',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '湖南',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '安徽',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '山东',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '新疆',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '江苏',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '浙江',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '江西',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '湖北',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '广西',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '甘肃',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '山西',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '内蒙古',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '陕西',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '吉林',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '福建',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '贵州',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '广东',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '青海',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '西藏',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '四川',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '宁夏',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '海南',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '台湾',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '香港',
+                    value1: randomData(),
+                    value2: randomData(),
+                }, {
+                    name: '澳门',
+                    value1: randomData(),
+                    value2: randomData(),
+                }];
+
+            var resultdata0 = [];
+            var resultdata1 = [];
+            var resultdata2 = [];
+            var sum0 = 0;
+            var sum1 = 0;
+            var sum2 = 0;
+            var titledata = [];
+            for (var i = 0; i < data.length; i++) {
+                var d0 = {
+                    name: data[i].name,
+                    value: data[i].value1 + data[i].value2
+                };
+                var d1 = {
+                    name: data[i].name,
+                    value: data[i].value1
+                };
+                var d2 = {
+                    name: data[i].name,
+                    value: data[i].value2
+                };
+                titledata.push(data[i].name)
+                resultdata0.push(d0);
+                resultdata1.push(d1);
+                resultdata2.push(d2);
+                sum0 += data[i].value1 + data[i].value2;
+                sum1 += data[i].value1;
+                sum2 += data[i].value2;
+            }
+
+            function NumDescSort(a, b) {
+                return a.value - b.value;
+            }
+
+            resultdata0.sort(NumDescSort);
+            resultdata1.sort(NumDescSort);
+            resultdata2.sort(NumDescSort);
+
+            option = {
+                title: [{
+                        text: '新闻转载分布图',
+                        subtext: '按媒体区分',
+                        left: 'center'
+                    }, {
+                        text: '新浪: ' + sum0,
+                        right: 120,
+                        top: 40,
+                        width: 100,
+                        textStyle: {
+                            color: '#fff',
+                            fontSize: 16
+                        }
+                    }, {
+                        text: "微博: " + sum1,
+                        right: 120,
+                        top: 40,
+                        width: 100,
+                        textStyle: {
+                            color: '#fff',
+                            fontSize: 16
+                        }
+                    }, {
+                        text: "公众号: " + sum2,
+                        right: 120,
+                        top: 40,
+                        width: 100,
+                        textStyle: {
+                            color: '#fff',
+                            fontSize: 16
+                        }
+                    }, ],
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    orient: 'vertical',
+                    left: 'left',
+                    data: ['新浪', '微博', '公众号'],
+                    selectedMode: 'single',
+                },
+                visualMap: {
+                    min: 0,
+                    max: 2500,
+                    left: 'left',
+                    top: 'bottom',
+                    text: ['高', '低'],
+                    calculable: true,
+                    colorLightness: [0.2, 100],
+                    color: ['#c05050', '#e5cf0d', '#5ab1ef'],
+                    dimension: 0
+                },
+                toolbox: {
+                    show: true,
+                    orient: 'vertical',
+                    left: 'right',
+                    top: 'center',
+                    feature: {
+                        dataView: {
+                            readOnly: false
+                        },
+                        restore: {},
+                        saveAsImage: {}
+                    }
+                },
+                grid: [{
+                        left: '30%',
+                        top: '50%',
+                        bottom: 80,
+                        width: '50%'
+                    }
+                ],
+                xAxis: [{
+                        position: 'top',
+                        type: 'value',
+                        boundaryGap: false,
+                        gridIndex: 0,
+                        splitLine: {
+                            show: false
+                        },
+                        axisLine: {
+                            show: false
+                        },
+                        axisTick: {
+                            show: false
+                        },
+                    }],
+                yAxis: [{
+                        type: 'category',
+                        data: titledata,
+                        gridIndex: 0,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    }],
+                series: [{
+                        z: 1,
+                        name: '新浪',
+                        type: 'map',
+                        map: 'china',
+                        top: '0',
+                        bottom: '50%',
+                        zoom: 0.45,
+                        label: {
+                            normal: {
+                                show: false
+                            },
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        data: resultdata0
+                    }, {
+                        z: 1,
+                        name: '微博',
+                        type: 'map',
+                        map: 'china',
+                        label: {
+                            normal: {
+                                show: false
+                            },
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        data: resultdata1
+                    }, {
+                        z: 1,
+                        name: '公众号',
+                        type: 'map',
+                        map: 'china',
+                        label: {
+                            normal: {
+                                show: false
+                            },
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        data: resultdata2
+                    }, {
+                        name: '新浪',
+                        z: 2,
+                        type: 'bar',
+                        label: {
+                            normal: {
+                                show: true
+                            },
+                            emphasis: {
+                                show: true,
+                            }
+                        },
+                        itemStyle: {
+                            emphasis: {
+                                color: "rgb(254,153,78)"
+                            }
+                        },
+                        data: resultdata0
+                    }, {
+                        name: '微博',
+                        z: 2,
+                        type: 'bar',
+                        label: {
+                            normal: {
+                                show: true
+                            },
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        itemStyle: {
+                            emphasis: {
+                                color: "rgb(254,153,78)"
+                            }
+                        },
+                        data: resultdata1
+                    }, {
+                        name: '公众号',
+                        z: 2,
+                        type: 'bar',
+                        label: {
+                            normal: {
+                                show: true
+                            },
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        itemStyle: {
+                            emphasis: {
+                                color: "rgb(254,153,78)"
+                            }
+                        },
+                        data: resultdata2
+                    }]
+            };
+            myChart.setOption(option);
+        </script>
+    </body>
+</html>

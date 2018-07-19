@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>大汪财经</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link href="__STATIC__/vux/vux.min.css" rel="stylesheet" type="text/css" />
+        <link href="__STATIC__/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <style type="text/css">
+            .demo-content {
+                padding: 10px 10px;
+            }
+        </style>
+        <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    </head>
+    <body>
+        <div id="demo">
+            <group>
+                <cell :title="value">
+                    <x-button  @click.native="backtoday" mini plain type="primary" style='margin-right:30px'>今天</x-button>
+                    <div @click="addevent()" class ="glyphicon glyphicon-plus"></div>
+                </cell>
+            </group>
+            <inline-calendar
+                ref="calendar"
+                @on-change="onChange"
+                @on-view-change="onViewChange"
+                class="inline-calendar-demo"
+                :show.sync="show"
+                v-model="value"
+                start-date="2018-02-03"
+                :range="range"
+                :show-last-month="showLastMonth"
+                :show-next-month="showNextMonth"
+                :highlight-weekend="highlightWeekend"
+                :return-six-rows="return6Rows"
+                :hide-header="hideHeader"
+                :hide-week-list="hideWeekList"
+                :replace-text-list="replaceTextList"
+                :weeks-list="weeksList"
+                :render-function="buildSlotFn"
+                :disable-past="disablePast"
+                :disable-future="disableFuture"
+                :disable-weekend="disableWeekend"
+                :disable-date-function="disableDateFunction">
+            </inline-calendar>
+            <swipeout v-if="ceventlist.length!==0">
+                <swipeout-item v-for="item in ceventlist" :key="item.id"  @on-close="handleEvents('on-close')" @on-open="handleEvents('on-open')" transition-mode="follow">
+                    <div slot="right-menu">
+                        <swipeout-button @click.native="edit(item)" type="primary">详情</swipeout-button>
+                        <swipeout-button @click.native="del(item)" type="warn">删除</swipeout-button>
+                    </div>
+                    <div slot="content" class="demo-content vux-1px-t">
+                        <label>{{item.title}}</label>
+                        <div>{{item.stime}}</div>
+                    </div>
+
+                </swipeout-item>
+            </swipeout>
+            <div style="text-align: center;width: 100%" v-else>暂无事件</div>
+        </div>
+
+        <script src='__STATIC__/vux/vux.min.js'></script>
+        <script src="__STATIC__/js/common/jquery.js" type="text/javascript"></script>
+
+        <script>
+Vue.component('group', vuxGroup)
+Vue.component('inline-calendar', vuxInlineCalendar)
+Vue.component('cell', vuxCell)
+Vue.component('x-button', vuxXButton)
+Vue.component('swipeout', vuxSwipeout)
+Vue.component('swipeout-item', vuxSwipeoutItem)
+Vue.component('swipeout-button', vuxSwipeoutButton)
+var userinfo = '{$str}'
+localStorage.setItem("userinfo", userinfo);
+var user = JSON.parse(localStorage.getItem("userinfo"));
+var tagvue = new Vue({
+    el: '#demo',
+    created: function () {
+        this.postdata(this)
+    },
+    mounted() {
+        var str = this.$refs.calendar.today.replace(/-/g, '/'); // "2010/08/01";
+        this.currentdate = new Date(str);
+    },
+    methods: {
+        onChange(val) {
+            this.ceventlist = [];
+            for (var i = 0; i < this.templist.length; i++) {
+                var stime = this.templist[i].stime;
+                if (stime === val) {
+                    this.ceventlist.push(this.templist[i])
+                }
+            }
+        },
+        onViewChange(val, count) {
+            console.log('on view change', val, count)
+//            if (count !== 0 && this.currentdate.getMonth() != (val.month - 1)) {
+//                this.value = val.firstCurrentMonthDate;
+//            } else if (this.currentdate.getMonth() == (val.month - 1)) {
+//                this.value = this.$refs.calendar.today;
+//            }
+            this.getceventlist(val.month);
+
+        },
+        getceventlist(month) {
+            this.templist = [];
+            this.ceventlist = [];
+            for (var i = 0; i < this.aeventlist.length; i++) {
+                var stime = this.aeventlist[i].stime;
+                var str = stime.replace(/-/g, '/');
+                var date = new Date(str);
+                if (month === (date.getMonth() + 1)) {
+                    console.log(month + "ss" + date.getMonth())
+                    this.ceventlist.push(this.aeventlist[i])
+                } else {
+                    console.log(date.getMonth())
+                }
+            }
+            this.templist = this.ceventlist;
+        },
+        edit(item) {
+            window.sessionStorage.setItem("edititem", JSON.stringify(item))
+            location.href = "__ROOT__/index.php/calendar/cal/editevent";
+        },
+        handleEvents(type) {
+            console.log('event: ', type)
+        },
+        postdata(vue) {
+//            alert(user.id)
+            var params = {uid: user.id}
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "https://www.myleap.cn/communityCMFX/index.php/Portal/Date/selectDealTime",
+                data: params, // 你的formid
+                async: false,
+                error: function (request) {
+                    alert("Connection error");
+                },
+                success: function (data) {
+                    console.log(JSON.stringify(data));
+                    vue.aeventlist = data.objects
+                }
+            });
+        },
+        addevent() {
+            location.href = "__ROOT__/index.php/calendar/cal/addevent";
+        },
+        backtoday() {
+            this.$refs.calendar.switchViewToToday();
+        },
+        del(item) {
+            var params = {uid: user.id, remind_id: item.remind_id}
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "https://www.myleap.cn/communityCMFX/index.php/Portal/Date/deleteDealTime",
+                data: params, // 你的formid
+                async: false,
+                error: function (request) {
+                    alert("Connection error");
+                },
+                success: function (data) {
+                    console.log(JSON.stringify(data));
+                    tagvue.postdata(tagvue);
+                }
+            });
+        }
+    },
+    data() {
+        return {
+            aeventlist: [],
+            ceventlist: [],
+            templist: [],
+            currentdate: {},
+            //
+            show: true,
+            value: 'TODAY',
+            listValue: '',
+            range: false,
+            showLastMonth: true,
+            showNextMonth: true,
+            highlightWeekend: true,
+            return6Rows: true,
+            hideHeader: false,
+            hideWeekList: false,
+            replaceTextList: {'TODAY': '今'},
+            replace: false,
+            changeWeeksList: false,
+            weeksList: ['日', '一', '二', '三', '四', '五', '六 '],
+            useCustomFn: false,
+            buildSlotFn: () => '',
+            disablePast: false,
+            disableFuture: false,
+            disableWeekend: false,
+            disableDateFunction(date) {
+                if (date.formatedDate === '2017-10-16') {
+                    return true
+                }
+            }
+        }
+    }
+})
+        </script>
+    </body>
+</html>

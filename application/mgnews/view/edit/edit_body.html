@@ -1,0 +1,60 @@
+﻿<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>Hui</title>
+		    <link href="__STATIC__/css/Hui.css?v=1" rel="stylesheet" type="text/css" />
+		<style type="text/css"></style>
+	</head>
+	<body>
+		<div id="editproperty" class="H-flexbox-horizontal H-border-vertical-bottom-after">
+			<label class="H-vertical-middle H-theme-background-color-white H-padding-8">{{tag}}:</label>
+			<input id="content" type="text" v-model="property" class="H-textbox H-vertical-align-middle H-vertical-middle H-font-size-16 H-flex-item H-box-sizing-border-box H-border-none H-outline-none H-padding-12" placeholder="总得写点什么..." />
+			<span class="H-icon H-vertical-middle H-padding-horizontal-right-10 H-theme-background-color-white"><i @click="clear" class="H-iconfont H-icon-close H-font-size-12 H-vertical-middle H-theme-font-color-gray"></i></span>
+		</div>
+	</body>
+	<script src="__STATIC__/js/H.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/jquery.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/utils.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/ajaxUtil.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/vue.min.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		var editproperty
+		H.ready(function() {
+                        var pageParam=  JSON.parse(window.localStorage.getItem("newsparams"))
+			editproperty = new Vue({
+				el : '#editproperty',
+				data : {
+					property : "",
+					tag : pageParam.property
+				},
+				methods : {
+					login : function() {
+					},
+					clear : function() {
+						this.property = "";
+					}
+				}
+			});
+		});
+		function save() {
+			if (editproperty.tag == "昵称") {
+				if (H.D("#content").value != "") {
+					H.execScript("user_info_win", "user_info_frm", 'save("' + H.D("#content").value + '","nickname");');
+					H.closeWin();
+				} else {
+					H.toast("昵称不能为空");
+				}
+			} else if (editproperty.tag == "个性签名") {
+				if (H.D("#content").value != "") {
+					H.execScript("user_info_win", "user_info_frm", 'save("' + H.D("#content").value + '","intro");');
+					H.closeWin();
+				} else {
+					H.toast("个性签名不能为空");
+				}
+			}
+		}
+	</script>
+</html>

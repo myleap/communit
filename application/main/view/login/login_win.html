@@ -1,0 +1,128 @@
+﻿<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+        <title>M+</title>
+        <link href="__STATIC__/css/Hui.css" rel="stylesheet" type="text/css" />
+        <script src="__STATIC__/js/H.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/vue.min.js" type="text/javascript"></script> 
+        <script src="__STATIC__/js/common/jquery.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/utils.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/ajaxUtil.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/jquery.js" type="text/javascript"></script>
+        <style type="text/css">
+            /*            body {
+                            background: url(../../../image/logo.png) no-repeat left top;
+                            background-size: cover;
+                        }*/
+        </style>
+    </head>
+    <body class="H-height-100-percent H-box-sizing-border-box ">
+        <header class="H-header " id="header">
+            <span onclick="H.closeWin();" class="H-width-200 H-icon H-position-relative H-display-inline-block H-float-left H-vertical-middle H-theme-font-color3 H-padding-horizontal-left-5 H-z-index-100"><i class="H-iconfont H-icon-target-back H-font-size-18 H-vertical-middle"></i></span>
+        </header>
+        <div id="login_view">
+            <!--            <div class="fix">
+                            <div class="H-horizontal-center H-padding-vertical-both-5">
+                                <div class="H-text-align-center">
+                                    <img src="__ROOT__/image/logo.png" class="H-border-radius-12 H-margin-vertical-top-10" style="width:80px;height:80px;" />
+                                    <div class="H-font-size-18" id="title" ></div>
+                                </div>
+                            </div>
+                            <div class="H-border-vertical-top-after H-margin-vertical-top-10">
+                                <form id="login_form">
+                                    <div class="H-flexbox-horizontal  H-border-vertical-bottom-margin-both-10-after ">
+                                        <span class="H-icon H-vertical-middle H-padding-horizontal-left-10"><i class="H-iconfont H-icon-phone H-font-size-18 H-vertical-middle H-theme-font-color-999"></i></span>
+                                        <input id="mobile" v-model='mobile' name="mobile" type="text"  class="H-textbox H-vertical-align-middle H-vertical-middle H-font-size-16 H-flex-item H-box-sizing-border-box H-border-none H-outline-none H-padding-15 H-theme-background-color-transparent" placeholder="请输入手机号码" />
+                                    </div>
+                                    <div class="H-flexbox-horizontal H-border-vertical-bottom-after">
+                                        <span class="H-icon H-vertical-middle H-padding-horizontal-left-10"><i class="H-iconfont H-icon-lock H-font-size-18 H-vertical-middle H-theme-font-color-999"></i></span>
+                                        <input id="pwd" name="pwd" v-model='pwd'  type="password" class="H-textbox H-vertical-align-middle H-vertical-middle H-font-size-16 H-flex-item H-box-sizing-border-box H-border-none H-outline-none H-padding-15 H-theme-background-color-transparent" placeholder="请输入登录密码" />
+                                    </div>
+                                </form>
+                                <div class="H-padding-15 H-margin-vertical-top-10">
+                                    <button @click="loginMobile" class="H-button H-width-100-percent  H-font-size-15 H-outline-none H-padding-vertical-both-15 H-padding-horizontal-both-20 H-theme-background-color9 H-theme-font-color-white H-theme-border-color9 H-theme-border-color9-click H-theme-background-color9-click H-theme-font-color9-click H-border-radius-3">
+                                        登录提交
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="H-padding-vertical-bottom-10"></div>
+                        <div class="H-theme-font-color1 H-text-align-center H-padding-vertical-both-10 H-font-size-14">
+                            其他方式登录
+                        </div>-->
+            <div class="H-flexbox-horizontal H-text-align-center  H-padding-vertical-both-15">
+                <!--                <div id="qq"  class="H-flex-item ">
+                                    <span  class="H-icon H-center-all H-theme-background-color1 H-border-radius-circle H-margin-horizontal-auto" style="height: 42px; width: 42px; "><i class="H-iconfont H-icon-qq H-font-size-22 H-theme-font-color-white"></i></span>
+                                    <label class="H-display-block H-font-size-13 H-margin-vertical-top-5">QQ</label>
+                                </div>-->
+                <div onclick="loginwx();" id="wx" class="H-flex-item ">
+                    <span class="H-icon H-center-all H-theme-background-color2 H-border-radius-circle H-margin-horizontal-auto" style="height: 42px; width: 42px; "><i class="H-iconfont H-icon-weixin H-font-size-22 H-theme-font-color-white"></i></span>
+                    <label class="H-display-block H-font-size-13 H-margin-vertical-top-5">点击登录</label>
+                    <!--<a class="H-display-block H-font-size-13 H-margin-vertical-top-5" href="{:url('/main/Wxlogin/index')}">微信</a>-->
+                </div>      
+            </div>
+        </div>
+        <script type="text/javascript">
+            var listVue;
+            H.ready(function () {
+                listVue = new Vue({
+                    el: '#login_view',
+                    data: {
+                        mobile: "",
+                        pwd: ""
+                    },
+                    methods: {
+                        loginMobile: function () {
+                            if (this.mobile === "2") {
+                                this.setUser2();
+                            } else {
+                                this.setUser3();
+                            }
+                        },
+                        setUser3: function () {
+                            var user = {};
+                            user.token = "ZX96eS8ucHSXNLmd755BrmRBw+WOHFBTyHLn4UVb08nVajdOyXyAMltFtsdXEifrv2Dn4Lio16I9elJrgy7WJQ==";
+                            user.id = "3";
+                            window.localStorage.removeItem("user_info");
+                            window.localStorage.setItem("user_info", JSON.stringify(user));
+                            H.closeWin();
+                        },
+                        setUser2: function () {
+                            var user = {};
+                            user.token = "Va3x9mXMfhEqnxfxvHSAUWRBw+WOHFBTyHLn4UVb08nVajdOyXyAMk44iraU7Ibh8yKMnv7tkyk9elJrgy7WJQ==";
+                            user.id = "2";
+                            window.localStorage.removeItem("user_info");
+                            window.localStorage.setItem("user_info", JSON.stringify(user));
+                            H.closeWin();
+                        }
+                    }
+                });
+
+            });
+            function loginwx() {
+                window.localStorage.removeItem("user_info");
+                $ajaxutil.post("login/delSession", {}, function (ret, err) {
+                    window.location.href = "{:url('/main/Wxlogin/index')}";
+                });
+//                $.post("__ROOT__/index.php/main/Wxlogin/index",
+//                        {},
+//                        function (data) {
+//                            console.log(JSON.stringify(data)); //  2pm
+//                        }, "json");
+
+//                $.ajax({
+//                    url: '__ROOT__/index.php/main/Wxlogin/index', //这里指向的就不再是页面了，而是一个方法。
+//                    data: {},
+//                    type: "POST",
+//                    dataType: "JSON",
+//                    success: function (data) {
+//                        console.log(data[0]);//这里要用索引，使用eq读取不出来数据。
+//                    }
+//                });
+            }
+        </script>
+    </body>
+</html>

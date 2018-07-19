@@ -1,0 +1,415 @@
+﻿<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+        <title>金麦粒价值发现</title>
+        <link href="__STATIC__/css/Hui.css" rel="stylesheet" type="text/css" />
+        <script src="__STATIC__/js/H.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/vue.min.js" type="text/javascript"></script>
+        <script src="https://cdn.ronghub.com/RongIMLib-2.2.5.min.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/rongcloudutil.js?v=2" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/jquery.js"></script>
+        <script src="__STATIC__/js/common/ajaxUtil.js?v=1" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/utils.js?v=2" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/chatwin.js?v=3"></script>
+        <style type="text/css">
+            [v-cloak] {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="chatlist" class="H-chatbox H-padding-vertical-bottom-10" v-cloak>
+            <div id="top" @click ="getHistoryMessages" style="width: 100%;text-align: center;" >{{noticeinfo}}</div>
+            <div v-for="(item,index) in list">
+                <div v-show="isTimeShow(index,item)" class="H-padding-vertical-top-10 H-text-align-center H-font-size-12 H-theme-font-color-999">{{item.sentTime}}</div>
+                <div v-if ="isSelf(item)">
+                    <div  class="H-chatbox-receiver H-flexbox-horizontal H-padding-horizontal-both-10 H-box-sizing-border-box H-margin-vertical-top-10">
+                        <div class="H-chatbox-img H-position-relative"><img v-bind:src="item.avatar" class="H-display-block H-border-radius-circle" alt="" title="" /></div>
+                        <div v-if ="item.msgType=='TextMessage'" class="H-chatbox-main H-flex-item H-flexbox-horizontal H-position-relative H-margin-horizontal-left-12">
+                            <div class="H-chatbox-content">
+                                <div class="H-font-size-12 H-theme-font-color-444 H-padding-2">{{item.nickname}}</div>
+                                <div class="H-position-relative">
+                                    <div class="H-chatbox-content-text H-font-size-16 H-padding-10 H-theme-background-color-white H-theme-font-color-444 H-border-radius-5">{{item.content}}</div>
+                                    <div class="H-chatbox-bugle H-theme-border-color-white H-position-absolute H-z-index-100 H-bugle-left"></div>
+                                </div>
+                            </div>
+                            <div class="H-chatbox-status H-flex-item H-padding-horizontal-both-10 H-box-sizing-border-box H-text-align-left H-padding-vertical-top-12"></div>
+                        </div>     
+                        <div v-else-if ="item.msgType=='ImageMessage'" @click="detailImg(item)" class="H-chatbox-main H-flex-item H-flexbox-horizontal H-position-relative H-margin-horizontal-left-12">
+                            <div class="H-chatbox-content">
+                                <div class="H-font-size-12 H-theme-font-color-444 H-padding-2">{{item.nickname}}</div>
+                                <div class="H-position-relative">
+                                    <div class="H-chatbox-content-image H-font-size-16 H-padding-2 H-theme-background-color-white H-theme-font-color-444 H-border-radius-5">
+                                        <img v-bind:src="item.content" class="H-border-radius-5 H-display-block H-width-200" />
+                                    </div>
+                                    <div class="H-chatbox-bugle H-theme-border-color-white H-position-absolute H-z-index-100 H-bugle-left"></div>
+                                </div>
+                            </div>
+                            <div class="H-chatbox-status H-flex-item H-padding-horizontal-both-10 H-box-sizing-border-box H-text-align-left H-padding-vertical-top-12"></div>
+                        </div>
+                        <div v-else-if ="item.msgType=='FileMessage'" @click="detailFile(item)" class="H-chatbox-main H-flex-item H-flexbox-horizontal H-position-relative H-margin-horizontal-left-12">
+                            <div class="H-chatbox-content">
+                                <div class="H-font-size-12 H-theme-font-color-444 H-padding-2">{{item.nickname}}</div>
+                                <div class="H-position-relative">
+                                    <div class="H-chatbox-content-image H-font-size-16 H-padding-10 H-theme-background-color-white H-theme-font-color-444 H-flexbox-horizontal H-border-radius-5">
+                                        <div class="H-padding-vertical-both-10 H-box-sizing-border-box"><img v-bind:src="getPic(item)" alt="" title="" class="H-display-block H-margin-horizontal-left-10" style="width: 70px; height: 70px;" /></div>
+                                        <div class="H-flex-item H-padding-10 H-position-relative H-box-sizing-border-box" style="height: 90px;min-width:150px;">
+                                            <strong class="H-font-weight-normal font-weight-500 H-font-size-16 H-display-block H-text-show-row-2">{{item.content}}</strong>
+                                            <p class="H-font-size-10 H-theme-font-color-999 H-position-absolute H-z-index-10 H-margin-0" style="bottom: 10px; left: 10px; right: 10px;"><span class="H-float-left"></span><span class="H-float-right">{{item.sentTime}}</span></p >
+                                        </div>
+                                    </div>
+                                    <div class="H-chatbox-bugle H-theme-border-color-white H-position-absolute H-z-index-100 H-bugle-left"></div>
+                                </div>
+                            </div>
+                            <div class="H-chatbox-status H-flex-item H-padding-horizontal-both-10 H-box-sizing-border-box H-text-align-left H-padding-vertical-top-12"></div>
+                        </div>
+                        <div  v-else-if ="item.msgType=='VoiceMessage'" class="H-chatbox-main H-flex-item H-flexbox-horizontal H-position-relative H-margin-horizontal-left-12">
+                            <div class="H-chatbox-content">
+                                <div class="H-position-relative">
+                                    <div class="H-chatbox-content-voice H-font-size-16 H-padding-10 H-theme-background-color8 H-theme-font-color-white H-border-radius-5"><span class="H-icon"><i class="H-iconfont H-icon-voice-right H-font-size-18"></i></span>&nbsp;&nbsp;9 ''</div>
+                                    <div class="H-chatbox-bugle H-theme-border-color8 H-position-absolute H-z-index-100 H-bugle-left"></div>
+                                </div>
+                            </div>
+                            <div class="H-chatbox-status H-flex-item H-padding-horizontal-both-10 H-box-sizing-border-box H-text-align-left H-padding-vertical-top-12"></div>
+                        </div>
+                    </div> 
+                </div>
+                <div  v-else>
+                    <div class="H-chatbox-sender H-flexbox-horizontal H-padding-horizontal-both-10 H-box-sizing-border-box H-margin-vertical-top-10">
+                        <div v-if ="item.msgType=='TextMessage'"  class="H-chatbox-main H-flex-item H-flexbox-horizontal H-position-relative H-margin-horizontal-right-12">
+                            <div class="H-chatbox-status H-flex-item H-padding-horizontal-both-10 H-box-sizing-border-box H-text-align-right H-padding-vertical-top-12"><span class="H-icon H-chatbox-status-loading H-display-inline-block"><i v-if="false" class="H-iconfont H-icon-loading H-theme-font-color-999 H-font-size-16"></i></span></div>
+                            <div class="H-chatbox-content">
+                                <div class="H-font-size-12 H-theme-font-color-444 H-padding-2 H-text-align-right">{{item.nickname}}</div>
+                                <div class="H-position-relative">
+                                    <div class="H-chatbox-content-text H-font-size-16 H-padding-10 H-theme-background-color1 H-theme-font-color-white H-border-radius-5">{{item.content}}</div>
+                                    <div class="H-chatbox-bugle H-theme-border-color1 H-position-absolute H-z-index-100 H-bugle-right"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else-if ="item.msgType=='ImageMessage'" @click="detailImg(item)" class="H-chatbox-main H-flex-item H-flexbox-horizontal H-position-relative H-margin-horizontal-right-12">
+                            <div class="H-chatbox-status H-flex-item H-padding-horizontal-both-10 H-box-sizing-border-box H-text-align-right H-padding-vertical-top-12"></div>
+                            <div class="H-chatbox-content">
+                                <div class="H-font-size-12 H-theme-font-color-444 H-padding-2 H-text-align-right">{{item.nickname}}</div>
+                                <div class="H-position-relative">
+                                    <div class="H-chatbox-content-image H-font-size-16 H-padding-2 H-theme-background-color1 H-theme-font-color-444 H-border-radius-5">
+                                        <img v-bind:src="item.content" class="H-display-block H-width-200 H-border-radius-5" />
+                                    </div>
+                                    <div class="H-chatbox-bugle H-theme-border-color1 H-position-absolute H-z-index-100 H-bugle-right"></div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div v-else-if ="item.msgType=='FileMessage'" @click="detailFile(item)" class="H-chatbox-main H-flex-item H-flexbox-horizontal H-position-relative H-margin-horizontal-right-12">
+                            <div class="H-chatbox-status H-flex-item H-padding-horizontal-both-10 H-box-sizing-border-box H-text-align-right H-padding-vertical-top-12"></div>
+                            <div class="H-chatbox-content">
+                                <div class="H-font-size-12 H-theme-font-color-444 H-padding-2 H-text-align-right">{{item.nickname}}</div>
+                                <div class="H-position-relative">
+                                    <div class="H-chatbox-content-image H-font-size-16 H-theme-background-color8 H-theme-font-color-white H-border-radius-5">
+                                        <div class="H-flexbox-horizontal H-theme-background-color-white H-border-vertical-bottom-after H-clear-both">
+                                            <div class="H-flex-item H-padding-10 H-position-relative H-box-sizing-border-box" style="height: 90px; ">
+                                                <strong class="H-font-weight-normal font-weight-500 H-font-size-16 H-display-block H-text-show-row-2">{{item.content}}</strong>
+                                                <p class="H-font-size-10 H-theme-font-color-999 H-position-absolute H-z-index-10 H-margin-0" style="bottom: 10px; left: 10px; right: 10px;"><span class="H-float-left">金麦粒</span><span class="H-float-right">{{item.sentTime}}</span></p >
+                                            </div>
+                                            <div class="H-padding-vertical-both-10 H-box-sizing-border-box"><img src="../../../image/logo.png" alt="" title="" class="H-display-block H-margin-horizontal-right-10" style="width: 70px; height: 70px;" /></div>
+                                        </div>
+                                    </div>
+                                    <div class="H-chatbox-bugle H-theme-border-color-white H-position-absolute H-z-index-100 H-bugle-right"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else-if ="item.msgType=='VoiceMessage'" class="H-chatbox-main H-flex-item H-flexbox-horizontal H-position-relative H-margin-horizontal-right-12">
+                            <div class="H-chatbox-status H-flex-item H-padding-horizontal-both-10 H-box-sizing-border-box H-text-align-right H-padding-vertical-top-12"></div>
+                            <div class="H-chatbox-content">
+                                <div class="H-position-relative">
+                                    <div class="H-chatbox-content-voice H-font-size-16 H-text-align-right H-padding-10 H-theme-background-color1 H-theme-font-color-white H-border-radius-5">20 ''&nbsp;&nbsp;&nbsp;<span class="H-icon"><i class="H-iconfont H-icon-voice-left H-font-size-18"></i></span></div>
+                                    <div class="H-chatbox-bugle H-theme-border-color1 H-position-absolute H-z-index-100 H-bugle-right"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="H-chatbox-img H-position-relative"><img v-bind:src="item.avatar" class="H-display-block H-border-radius-circle" alt="" title="" /></div>
+                    </div>
+                </div>
+            </div>     
+            <div><a id="msg_end" name="1" href="#1"></a></div>               
+        </div> 
+
+        <script type="text/javascript">
+var user = {};
+var groupid;
+var listVue;
+var imgItems = [];
+var pagesize = 10;
+var pagenum = 1;
+var jointime = $utils.getNowFormatDate();
+var jointamp = new Date().getTime();
+var inheight;
+window.onload = function () {
+    groupid = JSON.parse(localStorage.getItem("groupitem")).group_id;
+    user = JSON.parse(window.localStorage.getItem("user_info"));
+    initRong($.trim(user.token));
+    listVue = new Vue({
+        el: '#chatlist',
+        data: {
+            list: [],
+            noticeinfo: "查看更多消息",
+            isBottom: true
+        },
+        created: function () {
+            inheight = window.innerHeight;
+            this.getHistoryMessages();
+        },
+        beforeUpdate: function () {
+//            alert(inheight + "====" + document.body.scrollTop + "====" + document.body.clientHeight);
+//            if (Math.abs(inheight + document.body.scrollTop - document.body.clientHeight) < 1) {
+//                this.isBottom = true;
+//            } else {
+//                this.isBottom = false;
+//            }
+        },
+        updated: function () {
+//            alert("updated:"+window.opener.document.body.scrollTop);
+//            alert("body.clientHeight" + document.body.clientHeight);
+//            alert(document.getElementById("msg_end").offsetTop);
+//            if (document.body.scrollTop)
+//            alert(window.innerHeight + document.body.scrollTop - document.body.clientHeight);
+            if (this.isBottom)
+                msg_end.scrollIntoView();
+//            alert("window.innerHeight" + window.innerHeight);
+//            alert("body.clientHeight" + document.body.clientHeight);
+//            alert("body.scrollHeight" + document.body.scrollHeight);
+//            var oHeight = document.body.scrollHeight == 0 ? document.documentElement.scrollHeight : document.body.scrollHeight;
+//            var oTop = document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop;
+
+
+//            alert("body.clientTop" + document.body.clientTop);
+
+//            alert("chatlist.scrollHeight" + document.getElementById("chatlist").scrollHeight);
+//            alert("chatlist.scrollTop" + document.getElementById("chatlist").scrollTop);
+//            alert("chatlist.offsetTop" + document.getElementById("chatlist").offsetTop);
+//            alert("chatlist.offsetHeight" + document.getElementById("chatlist").offsetHeight);
+
+            console.log("msg_end.offsetTop" + document.getElementById("msg_end").offsetTop);
+            console.log((window.innerHeight + document.body.scrollTop) + "======" + document.body.clientHeight);
+        },
+        methods: {
+            isSelf: function (item) {
+                if (item.senderUserId === user.id) {
+                    return false; // false是自己发言
+                } else {
+                    return true; // true表示不是自己
+                }
+            },
+            getPic: function (item) {
+                var FileExtend = ".gif,.png,.jpg,.ico,.bmp,.pdf";
+                var s = item.path.substring(item.path.lastIndexOf('.')).toLowerCase();
+                if (FileExtend.indexOf(s) > -1)
+                    return "__ROOT__/image/pdf.jpg";
+                else
+                    return "__ROOT__/image/play.jpg";
+            },
+            isTimeShow: function (index, item) {
+                if (index === 0) {
+                    return true;
+                } else {
+                    var itemtime = new Date(item.sentTime).getTime();
+                    var protime = new Date(this.list[index - 1].sentTime).getTime();
+                    if ((itemtime - protime) > (5 * 60 * 1000)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            },
+            getHistoryMessages: function () {
+//                $rongCloud.getHistoryMessages(groupid);
+                var data = {
+                    limit: pagesize,
+                    page: pagenum,
+                    to_group_id: groupid,
+                    jointime: jointime
+                };
+                this.isBottom = false;
+                $chatwin.gethismsg(data, function (ret, err) {
+                    if (ret.isSuccess) {
+                        pagenum++;
+                        for (var i = 0; i < ret.objects.length; i++) {
+                            listVue.list.unshift(getFromDb(ret.objects[i]));
+                        }
+                        console.log("111111111111111111111" + JSON.stringify(ret));
+                    } else {
+                        listVue.noticeinfo = "无更多消息";
+                    }
+                });
+            },
+            detailImg: function (item) {
+                // 根据URL找到元素在数组中的位置 
+                var index = 0;
+                console.log(JSON.stringify(item));
+                for (i = 0; i < imgItems.length; i++) {
+                    if (imgItems[i].src == item.imageUri)
+                        index = i;
+                }
+                window.parent.showPic(imgItems, index);
+            },
+            detailFile: function (item) {
+                window.top.location = item.path;
+            }
+        }
+    });
+//    document.addEventListener("touchstart", function (e) {
+//        listVue.isBottom = false;
+//    }, false);
+//    document.addEventListener("touchend", function (e) {
+//        window.setTimeout(function () {
+//            listVue.isBottom = true;
+//        }, 15000);
+//    }, false);
+}
+
+function initRong(token) {
+    RongIMLib.RongIMClient.init("bmdehs6pdb8rs");
+    var messageName = "PersonMessage"; // 消息名称。
+    var objectName = "s:person"; // 消息内置名称，请按照此格式命名。
+    var mesasgeTag = new RongIMLib.MessageTag(true, true); // 消息是否保存是否计数，true true 保存且计数，false false 不保存不计数。
+    var propertys = ["name", "age"]; // 消息类中的属性名。
+    RongIMClient.registerMessageType(messageName, objectName, mesasgeTag, propertys);
+    $rongCloud.setConnectListener();
+    $rongCloud.setRecieveListener(function (msg) {
+        console.log("receiversuccess" + JSON.stringify(msg));
+        if (msg.sentTime > jointamp) {
+//            window.setTimeout(function () {
+            if (listVue.isBottom)
+                listVue.isBottom = false;
+//            }, 15000);
+            listVue.list.push(getFromRong(msg));
+            if (msg.messageType === 'ImageMessage') {
+                $chatwin.addimg(msg.content.content, msg.content.imageUri, false, imgItems);
+            }
+        }
+    });
+    $rongCloud.doConnect(token, function (userid) {
+//        user.id = userid;
+//        $rongCloud.joinGroup(groupid, "测试2");
+    });
+}
+
+function sendMsg(targetId, txtcontent) {
+    var txtmsg = new RongIMLib.TextMessage({content: txtcontent, extra: {user: user}});
+    $rongCloud.sendMsg(targetId, txtmsg, function (msg, err) {
+        if (msg) {
+            console.log("sendMsg" + JSON.stringify(msg));
+            listVue.isBottom = true;
+            listVue.list.push(getFromRong(msg));
+            var data = {
+                sendid: user.id,
+                content: msg.content.content,
+                targetId: targetId,
+                objectname: 1
+            };
+            $chatwin.saveFile(data, function (ret, err) {
+                console.log("saveFile" + JSON.stringify(ret));
+            });
+        }
+    });
+}
+//viewurl压缩后的BASE64;imgurl图片网络路径
+function sendImg(targetId, viewurl, imgurl, loadindex) {
+    var imgmsg = new RongIMLib.ImageMessage({content: viewurl, imageUri: imgurl, extra: {user: user}});
+//    alert("sendImg:before$rongCloud" + viewurl.replace(/[^\u0000-\u00ff]/g, "aa").length / 1024);
+    $rongCloud.sendMsg(targetId, imgmsg, function (msg, err) {
+        if (msg) {
+            console.log("user.id" + user.sendid + "targetid" + targetId);
+            var data = {
+                sendid: user.id,
+                imgurl: imgurl,
+                targetId: targetId,
+                objectname: 2
+            };
+            $chatwin.saveFile(data, function (ret, err) {
+                console.log("000000000000000" + ret);
+            });
+            listVue.list.splice(loadindex, 1, getFromRong(msg)); // 加载成功后列表中元素替换为真实数据
+            $chatwin.addimg(msg.content.content, imgurl, false, imgItems);
+        }
+    });
+}
+// 上传图片时的预览界面
+function processload() {
+    var currentitem = {};
+// 文本消息时content为内容，图片消息时content为缩略图
+    currentitem.content = "__ROOT__/image/loading.gif";
+    currentitem.msgType = "ImageMessage";
+    currentitem.nickname = user.user_nicename;
+    currentitem.avatar = user.avatar
+    currentitem.imageUri = "";
+    currentitem.sentTime = $utils.getNowFormatDate();
+    currentitem.senderUserId = user.id;
+    listVue.isBottom = true;
+    var lenth = listVue.list.push(currentitem);
+    return lenth - 1;
+}
+function sendVid() {
+
+}
+function getFromRong(msg) {
+    var listItem = {};
+    if (msg.messageType === "UnknownMessage") {
+        if (msg.objectName === "VideoMsg") {
+            listItem.msgType = "FileMessage";
+        } else if (msg.objectName === "FileMsg") {
+            listItem.msgType = "FileMessage";
+        }
+        listItem.nickname = msg.content.message.content.extra.user.user_nicename;
+// 文本消息时content为内容，图片消息时content为缩略图
+        listItem.content = msg.content.message.content.content;
+//    listItem.senderUserId = msg.extra.user.id;
+        listItem.senderUserId = msg.senderUserId;
+        listItem.avatar = msg.content.message.content.extra.user.avatar ? msg.content.message.content.extra.user.avatar : "__ROOT__/image/logo.png";
+        listItem.path = msg.content.message.content.imageUri;
+        console.log(parseInt(msg.sentTime));
+        listItem.sentTime = $utils.formatDate(new Date(msg.sentTime));
+    } else {
+        listItem.msgType = msg.messageType;
+        listItem.nickname = msg.content.extra.user.user_nicename;
+// 文本消息时content为内容，图片消息时content为缩略图
+        listItem.content = msg.content.content;
+//    listItem.senderUserId = msg.extra.user.id;
+        listItem.senderUserId = msg.senderUserId;
+        listItem.avatar = msg.content.extra.user.avatar ? msg.content.extra.user.avatar : "__ROOT__/image/logo.png";
+        listItem.imageUri = msg.content.imageUri;
+        console.log(parseInt(msg.sentTime));
+        listItem.sentTime = $utils.formatDate(new Date(msg.sentTime));
+    }
+
+
+    return listItem;
+}
+function getFromDb(obj) {
+    var listItem = {};
+    if (obj.object_name == "2") {
+        listItem.msgType = "ImageMessage";
+// 文本消息时content为内容，图片消息时content为缩略图
+        listItem.content = obj.content ? obj.content : obj.path;
+        $chatwin.addimg(obj.path, obj.path, true, imgItems);
+    } else if (obj.object_name == "1") {
+        listItem.msgType = "TextMessage";
+        listItem.content = obj.content;
+    } else if (obj.object_name == "4" || obj.object_name == "5") {
+        listItem.msgType = "FileMessage";
+        listItem.path = obj.path;
+        listItem.content = obj.content ? obj.content : "无标题";
+    }
+    listItem.senderUserId = obj.from_user_id
+    listItem.nickname = obj.user_nicename;
+    listItem.avatar = obj.avatar ? obj.avatar : "../../../image/logo.png";
+    listItem.imageUri = obj.path;
+    listItem.sentTime = obj.createtime;
+    return listItem;
+}
+        </script>
+    </body>
+</html>

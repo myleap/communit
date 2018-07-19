@@ -1,0 +1,132 @@
+{include file="header"} 
+
+<div id="community">
+    <div class="H-padding-vertical-both-10 H-padding-horizontal-both-5 H-theme-background-color-white">
+        <div class="H-search H-flexbox-horizontal H-box-sizing-border-box  H-overflow-hidden H-position-relative">
+            <div @click ="ser" ref="ser" class="H-position-absolute H-z-index-100 H-width-100-percent H-height-100-percent H-vertical-middle H-text-align-center H-theme-font-color-999  H-border-radius-15" id="ser"><span class="H-display-block H-width-100-percent H-font-size-14"><i class="H-iconfont H-icon-search H-font-size-14"></i> 搜索公司代码/简称/标题关键字</span></div>
+            <input @keyup="show($event)" ref="ipt" type="search" name="keyword" id="ipt" class="H-border-none  H-border-radius-15 H-theme-background-color-f4f4f4 H-flex-item H-font-size-14 H-padding-horizontal-both-10 H-padding-vertical-both-5 H-theme-background-color-f4f4f4" /><span @click ="btn" ref="btn" class="H-display-block H-font-size-14 H-vertical-middle H-theme-font-color1 H-padding-horizontal-both-10 btn" style="display:none;">取消</span>
+        </div>
+    </div>
+
+    <div  v-for="(item,index) in list " @click="detail(item);" class="H-flexbox-horizontal H-theme-background-color-white H-border-vertical-bottom-after H-clear-both">
+        <div class="H-padding-vertical-both-10 H-box-sizing-border-box"><img v-bind:src='item.thumb' alt="" title="" class="H-display-block H-margin-horizontal-left-10" style="width: 70px; height: 70px;" /></div>
+        <div class="H-flex-item H-padding-10 H-position-relative H-box-sizing-border-box" style="height: 90px; ">
+            <strong  class="H-font-weight-normal font-weight-500 H-font-size-16 H-display-block H-text-show-row-2">{{item.title}}</strong>
+            <p class="H-font-size-10 H-theme-font-color-999 H-position-absolute H-z-index-10 H-margin-0" style="bottom: 10px; left: 10px; right: 10px;"><span class="H-float-left">{{item.company_name}}</span><span class="H-float-right">{{item.company_code}}</span></p>
+        </div>
+    </div>
+</div>
+<!--<div>
+    <form name="form" action="{:url('/main/community/add')}" class="form-validation mt-20" novalidate method="POST">
+        <input type="submit" class="btn btn-blue b-0 br-2 mr-5" name="login_submit" value="添加">
+    </form>
+
+    <a href="{:url('/main/community/delete')}" class="pull-right mt-10">删除</a>
+</div>-->
+<script src="__STATIC__/js/common/user.js" type="text/javascript"></script>
+<script src="__STATIC__/js/common/community.js" type="text/javascript"></script>
+<script type="text/javascript">
+var listVue;
+var userinfo;
+H.ready(function () {
+    userinfo = JSON.parse(window.localStorage.getItem("user_info"));
+    listVue = new Vue({
+        el: '#community',
+        data: {
+            list: []
+        },
+        created: function () {
+//            queryGroup();
+        },
+        methods: {
+            detail: function (item) {
+                if ($user.checkLogin(JSON.parse(window.localStorage.getItem("user_info")))) {
+                    $ajaxutil.post("login/userfromdb", {uid: userinfo.id}, function (ret, err) {
+                        if (ret.isSuccess) {
+                            userinfo = ret.objects;
+                            localStorage.setItem("user_info", JSON.stringify(userinfo));
+                            var data = {uid: userinfo.id, group_id: item.group_id}
+                            $community.selectRight(data, function (ret, error) {
+                                if (ret) {
+                                    switch (ret.objects) {
+                                        case 0:
+                                            alert("已申请加入群，请等待管理员通过审批");
+                                            break;
+                                        case 1:
+                                            localStorage.setItem("groupitem", JSON.stringify(item));
+                                            H.openWin('chat_win', '__ROOT__/index.php/main/chatbox/chatwin', {}, {bounces: false});
+                                            break;
+                                        case 10:
+                                            // 未申请加入群组
+                                            if (window.confirm("非群成员，申请成为群成员？")) {
+                                                var jgdata = {uid: userinfo.id, group_id: item.group_id, company_code: item.company_code};
+                                                $community.joinGroup(jgdata, function (ret, err) {
+                                                    if (ret) {
+                                                        if (ret.resCode == 200) {
+                                                            alert(JSON.stringify("提交成功！"));
+                                                        } else if (ret.resCode == 202) {
+                                                            alert(JSON.stringify("请勿重复申请"));
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                            break;
+                                        case 11:
+                                            break;
+                                        case 12:
+                                            if (window.confirm("请先实名认证!")) {
+                                                H.openWin('certificationwin', '__ROOT__/index.php/main/certification/certificationwin');
+                                            }
+                                            break;
+                                        case 13:
+                                            alert("请等待管理员通过实名认证审核！");
+                                            break;
+                                        default:
+                                        // do something...
+                                    }
+                                } else {
+                                    alert("ret" + ret + "error" + error);
+                                }
+                            });
+                        }
+                    });
+                }
+            },
+            ser: function () {
+                this.$refs.ser.style.cssText = "display:none;";
+                this.$refs.btn.removeAttribute("style");
+                this.$refs.ipt.setAttribute("placeholder", "请输入关键字");
+                this.$refs.ipt.focus();
+            },
+            btn: function () {
+                this.$refs.btn.style.cssText = "display:none;";
+                this.$refs.ipt.value = '';
+                this.$refs.ipt.setAttribute("placeholder", "");
+                this.$refs.ser.removeAttribute("style");
+//                queryGroup();
+            },
+            show: function (ev) {
+                if (ev.keyCode == 13) {
+                    searchitem(this.$refs.ipt.value);
+                }
+            }
+        }
+
+    });
+//        H.alert(JSON.stringify(listVue.list[0])) 
+});
+function searchitem(keyword) {
+    var data = {keyword: keyword};
+    $community.selectGroup(data, function (ret, err) {
+        listVue.list = ret.objects;
+    });
+}
+function queryGroup() {
+    var data = {uid: ""};
+    $community.queryGroup(data, function (ret, err) {
+        listVue.list = ret.objects;
+    });
+}
+</script>
+
+{include file="footer"}

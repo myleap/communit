@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>金麦粒</title>
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+
+        <link href="__STATIC__/vux/vux.min.css" rel="stylesheet" type="text/css" />
+        <style type="text/css">
+            html, body {
+                height: 100%;
+                width: 100%;
+                overflow-x: hidden;
+            }
+            .content {
+                background-color: #cc85d9;
+                width: 100%;
+                position: absolute;
+                top: 44px;
+                bottom: 0px;
+                left: 0px;
+            }
+            [v-cloak] {
+                display: none;
+            }
+            .ximg-demo {
+                width: 100%;
+                height: auto;
+            }
+            .ximg-error {
+                background-color: yellow;
+            }
+            .ximg-error:after {
+                content: '加载失败';
+                color: red;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="demo" v-cloak>
+            <div style="width:100%;position:fixed;z-index:100;">
+                <tab :line-width=2 active-color='#fc378c' v-model="index"  class="tabtitle">
+                    <tab-item class="vux-center" :selected="cur === item.title" v-for="(item, index) in listtitle" @click="cur = item.title" :key="index">{{item}}</tab-item>
+                </tab>
+            </div>
+            <!--            <div style="width:100%;height: 44px;">
+                              这里放一些标记吧
+                        </div>-->
+            <swiper  
+                class="content"
+                v-model="index" 
+                :show-dots="false" 
+                height ="100%"
+                ref="swiper"  >
+                <swiper-item 
+                    v-for="(item, index) in listarr" 
+                    :key="index">
+                    <view-box ref="viewBox" >
+                        <x-img  v-if="item.isbg" src="__ROOT__/image/mapbg.jpg"  class="ximg-demo" error-class="ximg-error" :offset="1000" container="#vux_view_box_body" v-cloak></x-img>
+                        <panel v-else
+                               :header="item.title"
+                               :list="item.list" 
+                               @on-click-item="showpdf"
+                               type="4">
+                    </panel>
+                    <div v-if="index==2">
+                        <x-button :text="submittext" :disabled="disablebutton" @click.native="processButton" type="primary"></x-button>
+                    </div>
+                </view-box>
+                <!--发送按钮-->
+                <actionsheet  v-model="show3" :menus="menus3" @on-click-menu="choose" @on-click-menu-send="onSend" show-cancel></actionsheet>
+            </swiper-item>
+
+            <swiper-item 
+                key="map">
+                <view-box ref="viewBox" >
+                    <x-img v-if="isnull" src="__ROOT__/image/mapbg.jpg"  class="ximg-demo" error-class="ximg-error" :offset="1000" container="#vux_view_box_body" ></x-img>
+
+                    <div v-else style="height:800px;">
+                        <div id = "map" style="height: 70%;width: 100%;background-color: #c4e3f3"></div>
+                        <div id = "line" style="height: 30%;width: 100%;background-color: #c4e3f3"></div>
+                    </div>
+
+
+                </view-box>
+
+            </swiper-item>
+        </swiper>
+
+        <toast v-model="showSuccess">发送成功</toast>
+    </div>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="__STATIC__/js/echart/echarts.js"></script>
+    <script src="__STATIC__/js/echart/china.js"></script>
+    <script src='__STATIC__/vux/vux.min.js'></script>
+    <script src="__STATIC__/js/common/jquery.js" type="text/javascript"></script>
+    <script src="__STATIC__/js/common/utils.js" type="text/javascript"></script>
+    <script>
+Vue.component('group', vuxGroup)
+Vue.component('tab', vuxTab)
+Vue.component('tab-item', vuxTabItem)
+Vue.component('swiper', vuxSwiper)
+Vue.component('swiper-item', vuxSwiperItem)
+Vue.component('panel', vuxPanel)
+Vue.component('view-box', vuxViewBox)
+Vue.component('x-header', vuxXHeader)
+Vue.component('x-img', vuxXImg)
+Vue.component('x-button', vuxXButton)
+Vue.component('actionsheet', vuxActionsheet)
+Vue.component('toast', vuxToast)
+var tagvue = new Vue({
+    el: '#demo',
+    created: function () {
+        var list1 = {title: '公司新闻', list: [], isbg: false};
+        var list2 = {title: '敏感新闻', list: [], isbg: false};
+        var list3 = {title: '行业新闻', list: [], isbg: false};
+        this.listarr.push(list1);
+        this.listarr.push(list2);
+        this.listarr.push(list3);
+        queryMsgs(this);
+
+    },
+    mounted: function () {
+        //        alert(document.body.clientWidth)
+        //        alert(document.body.clientHeight)
+        this.$nextTick(function () {
+//            this.$refs.swiper.xheight = '170px';
+        });
+    },
+    methods: {
+        showpdf(item) {
+            console.log(item.url)
+        },
+
+        addtab(title) {
+
+        },
+        processButton() {
+            this.show3 = true;
+
+        },
+        choose(key) {
+            console.log(key)
+        },
+        onSend() {
+            var that = this;
+            var params = {
+                start_time: localStorage.getItem("start_time"),
+                end_time: localStorage.getItem("end_time"),
+                orgcode: localStorage.getItem("orgcode"),
+            };
+            $.ajax({
+                type: "POST",
+                url: "https://www.myleap.cn/communityCMFX/index.php/Portal/Collect/send_project_group_news",
+                data: params,
+                error: function (request) {
+                    alert("请确认网络连接正常,确认后将于三秒");
+                    setTimeout(function(){ alert("Hello") }, 3000);
+                },
+                success: function (data) {
+                    that.showSuccess = true
+                    that.submittext = '已发送'
+                    that.disablebutton = true
+                }
+            });
+        }
+    },
+    data() {
+        return {
+            listtitle: ["公司新闻", "行业新闻", "敏感新闻", "可视化"],
+            listarr: [],
+            cur: '公司新闻',
+            index: 0,
+            isnull: false,
+            submittext: '发送',
+            disablebutton: false,
+            showSuccess: false,
+
+            show3: false,
+            menus3: {
+                'title.noop': '确定发送<br/><span style="color:#666;font-size:12px;">发送后就无法撤消了哦</span>',
+                send: '<span style="color:red">发送</span>'
+            },
+            //            tt: document.body.clientWidth / document.body.clientHeight
+        }
+    },
+    watch: {
+        index(newval, oldval) {
+            console.log(newval + "-----------" + oldval);
+            if (newval == 3) {
+                initmap(this)
+            } else if (newval == 2) {
+                queryMedia(this);
+            } else {
+                queryMsgs(this);
+            }
+        }
+    }
+});
+var pagesize = 10;
+var pagenum = 1;
+function queryMsgs(vue) {
+    var params = {
+        unionid: "oocmWw1DEBD_0iIH6IYtRFTWjcRs",
+        openid: "oP3LBwk5htxhbM08UCmDcjSZC9qM",
+        start_time: "2018-06-04 16:08:00",
+        end_time: "2018-06-05 16:08:00",
+        orgcode: "002570",
+        page: pagenum,
+        limit: pagesize
+    };
+    vue.noticeinfo = "加载中。。。";
+    $.ajax({
+        type: "POST",
+        url: "https://www.myleap.cn/communityCMFX/index.php/Portal/Collect/select_project_group_news",
+        data: params,
+        error: function (request) {
+            alert("请确认网络连接正常，点击确定后将于三秒后重连");
+            setTimeout(function(){ 
+                queryMsgs(vue);
+            }, 3000);
+        },
+        success: function (data) {
+            var ret = data;
+            console.log(ret)
+            if (ret.normal == 1) {
+                if ($utils.isNullOrEmpty(ret.objects) || ret.objects.length == 0) {
+                    vue.noticeinfo = "无更多数据";
+                } else if (ret.objects.length < 10) {
+                    vue.noticeinfo = "无更多数据";
+                    pagenum++;
+                } else {
+                    vue.noticeinfo = "加载更多"
+                    pagenum++;
+                }
+                vue.templist = ret.objects;
+                formatdata(vue.templist, vue);
+
+            }
+        }
+    });
+}
+
+function queryMedia(vue) {
+//    var params = {
+//        unionid: "oocmWw1DEBD_0iIH6IYtRFTWjcRs",
+//        openid: "oP3LBwk5htxhbM08UCmDcjSZC9qM",
+//        start_time: "2018-06-04 16:08:00",
+//        end_time: "2018-06-05 16:08:00",
+//        orgcode: "002570",
+//        page: pagenum,
+//        limit: pagesize
+//    };
+    var params = {
+        unionid: "oocmWw1DEBD_0iIH6IYtRFTWjcRs",
+        openid: "oP3LBwvdy-slOFF4dtLLsk6EddUk",
+        start_time: "2018-07-17 06:30:00",
+        end_time: "2018-07-18 06:30:00",
+        orgcode: "0002",
+        page: pagenum,
+        limit: pagesize
+    };
+    vue.noticeinfo = "加载中。。。";
+    $.ajax({
+        type: "POST",
+        url: "https://www.myleap.cn/communityCMFX/index.php/Portal/Collect/select_project_group_news2",
+        data: params,
+        error: function (request) {
+            alert("请确认地址有效");
+        },
+        success: function (data) {
+            var ret = data;
+            console.log(ret)
+            if (ret.normal == 1) {
+                if ($utils.isNullOrEmpty(ret.objects) || ret.objects.length == 0) {
+                    vue.noticeinfo = "无更多数据";
+                } else if (ret.objects.length < 10) {
+                    vue.noticeinfo = "无更多数据";
+                    pagenum++;
+                } else {
+                    vue.noticeinfo = "加载更多"
+                    pagenum++;
+                }
+
+                formatmedia(ret.objects, vue);
+
+            }
+        }
+    });
+}
+
+function formatdata(templist, vue) {
+    vue.listarr[0].list = [];
+    vue.listarr[1].list = [];
+    for (var i = 0; i < templist.length; i++) {
+        var ob = {
+//            src: templist[i].url,
+            url: templist[i].url,
+            title: templist[i].title,
+            desc: templist[i].title,
+//            url: {
+//                path: templist[i].url,
+//                replace: false
+//            },
+            meta: {
+                source: templist[i].source,
+                date: templist[i].createtime,
+                other: templist[i].code
+            }
+        };
+        if (templist[i].sentiment == '6') {
+            vue.listarr[0].list.push(ob);
+        } else {
+            vue.listarr[1].list.push(ob);
+        }
+    }
+    if (vue.listarr[0].list == 0) {
+        vue.listarr[0].isbg = true;
+    }
+    if (vue.listarr[1].list == 0) {
+        vue.listarr[1].isbg = true;
+    }
+}
+function formatmedia(templist, vue) {
+    vue.listarr[2].list = [];
+    for (var i = 0; i < templist.length; i++) {
+        var ob = {
+            url: templist[i].url,
+            title: templist[i].title,
+            desc: templist[i].title,
+
+            meta: {
+                source: templist[i].source,
+                date: templist[i].createtime,
+                other: templist[i].code
+            }
+        };
+        vue.listarr[2].list.push(ob);
+    }
+    if (vue.listarr[2].list == 0) {
+        vue.listarr[2].isbg = true;
+    }
+}
+var myChart = null;
+var lineChart = null;
+function initmap(vue) {
+//    var userinfo = JSON.parse(localStorage.getItem("userinfo"));
+    var params = {
+        unionid: "oocmWw8lQNJX3w-CLuSNU6E0-dTc",
+        openid: "oP3LBwjLWvholTg-KmdL9mnhTajM",
+        start_time: "2018-06-27 07:00:00",
+        end_time: "2018-06-28 07:00:00",
+        orgcode: "300583",
+    };
+
+    $.ajax({
+        type: "POST",
+        url: "https://www.myleap.cn/communityCMFX/index.php/Portal/Collect/select_project_group_news3",
+        data: params,
+        error: function (request) {
+            alert("请确认地址有效");
+        },
+        success: function (data) {
+            if (data.objects.length == 0) {
+                $('#nonebg').css('display', 'block');
+            } else {
+                $('#content').css('display', 'block');
+            }
+            if (myChart == null || lineChart == null) {
+                myChart = echarts.init(document.getElementById('map'));
+                lineChart = echarts.init(document.getElementById('line'));
+            }
+            var titledata = [];
+            var resultdata0 = [];
+            var datatime = [];
+            var data1 = [];
+            var data2 = [];
+            for (var i = data.objects.length - 1; i > 0 || i == 0; i--) {
+
+                // 地图数据数组中是否已经有这个地域名
+                if (data.objects[i].area_name == '全国') {
+                    data.objects[i].area_name = '其他'
+                }
+                var flag = contain(resultdata0, data.objects[i].area_name)
+                if (flag != -1) {
+                    resultdata0[flag].value = resultdata0[flag].value + 1
+                } else {
+                    var d0 = {
+                        name: data.objects[i].area_name,
+                        value: 1
+                    };
+                    titledata.push(data.objects[i].area_name)
+                    resultdata0.push(d0);
+                }
+                //坐标数据处理
+
+                var flagtime = containtime(datatime, data.objects[i].createtime)
+
+                if (flagtime != -1) {
+                    // 包含
+                    data1[flagtime].value = data1[flagtime].value + 1
+                    data2[flagtime].value = data2[flagtime].value + 1
+                } else {
+                    //不包含
+                    datatime.push(data.objects[i].createtime)
+                    data1.push({
+                        name: data.objects[i].createtime,
+                        value: 1
+                    });
+
+                    data2.push({
+                        name: data.objects[i].createtime,
+                        value: data.objects.length - i
+                    });
+                }
+            }
+            lineoption = {
+                tooltip: {
+                    trigger: 'axis',
+//                            axisPointer: {
+//                                type: 'cross'
+//                            }
+                },
+                legend: {
+                    data: ['新闻总量', '时间段新闻']
+                },
+                grid: [{
+                        top: '10%',
+                        bottom: '0',
+                        left: '15%',
+                        height: '65%',
+                        width: '70%',
+                    }],
+                dataZoom: [{
+//                                startValue: '1'
+                    }, {
+                        type: 'inside'
+                    }],
+                xAxis: [{
+
+                        data: datatime
+                    }
+                ],
+                yAxis: [{
+                        minInterval: 1,
+                        splitLine: {
+                            show: true
+                        }
+                    }],
+                series: [{
+                        type: 'line',
+                        name: '时间段新闻',
+                        data: data1
+                    }, {
+                        name: '新闻总量',
+                        type: 'line',
+                        data: data2
+                    }
+                ]
+            }
+            lineChart.setOption(lineoption);
+            option = {
+                title: [{
+                        text: '舆情传播分布图',
+                        subtext: '股票代码：' + localStorage.getItem("orgcode"),
+                        left: 'center'
+                    }, {
+                        text: '总共发布了' + data.objects.length + '次',
+                        left: 'left',
+                        top: 40,
+                        width: 100,
+                        textStyle: {
+                            color: '#000',
+                            fontSize: 16
+                        }
+                    }],
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    show: false,
+                },
+                visualMap: {
+                    min: 0,
+                    max: 50,
+                    left: 'left',
+                    top: '30%',
+                    itemWidth: 2,
+                    text: ['高', '低'],
+                    calculable: true,
+                    colorLightness: [0.2, 100],
+                    color: ['#c05050', '#e5cf0d', '#5ab1ef'],
+
+                },
+                toolbox: {
+                    show: true,
+                    orient: 'vertical',
+                    left: 'right',
+                    top: '25%',
+                    feature: {
+                        restore: {}
+                    }
+                },
+                grid: [{
+                        left: '15%',
+                        bottom: '5%',
+                        height: '30%',
+                        width: '70%'
+                    }
+                ],
+                xAxis: [{
+                        type: 'category',
+                        data: titledata,
+                        gridIndex: 0,
+                        axisLine: {
+                            show: true,
+                            lineStyle: {
+                                color: "#063374",
+                                width: 1,
+                                type: "solid"
+                            }
+                        },
+                        axisTick: {
+                            show: true,
+                        },
+                        axisLabel: {
+                            show: true,
+                            textStyle: {
+                                color: "#00c7ff",
+                            }
+                        }
+                    }],
+                yAxis: [{
+                        type: 'value',
+                        gridIndex: 0,
+//                                boundaryGap: true,
+                        minInterval: 1,
+                        axisLabel: {
+                            formatter: '{value}'
+                        },
+                        axisTick: {
+                            show: false,
+                        },
+                        axisLine: {
+                            show: true,
+                            lineStyle: {
+                                color: "#00c7ff",
+                                width: 1,
+                                type: "solid"
+                            },
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                color: "#063374",
+                            }
+                        }
+                    }
+                ],
+
+                series: [{
+                        z: 1,
+                        name: getNowFormatDate(),
+                        type: 'map',
+                        map: 'china',
+                        top: '10%',
+                        roam: true,
+                        zoom: 1,
+                        label: {
+                            normal: {
+                                show: false
+                            },
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        data: resultdata0
+                    }, {
+                        name: getNowFormatDate(),
+                        z: 2,
+                        type: 'bar',
+                        xAxisIndex: 0,
+                        yAxisIndex: 0,
+                        barWidth: 10,
+                        label: {
+                            normal: {
+                                show: true
+                            },
+                            emphasis: {
+                                show: true,
+                            }
+                        },
+                        itemStyle: {
+                            emphasis: {
+                                color: "rgb(254,153,78)"
+                            }
+                        },
+                        data: resultdata0
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+    });
+}
+function randomData() {
+    return Math.round(Math.random() * 1000);
+}
+//获取当前时间，格式YYYY-MM-DD
+function getNowFormatDate() {
+    var date = new Date();
+    var seperator1 = "-";
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    var currentdate = year + seperator1 + month + seperator1 + strDate;
+    return currentdate;
+}
+
+function NumDescSort(a, b) {
+    return a.value - b.value;
+}
+function contain(arr, str) {
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].name.indexOf(str) != -1) {
+            return i;
+        }
+    }
+    return -1;
+}
+function containtime(arr, str) {
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].indexOf(str) != -1) {
+            return i;
+        }
+    }
+    return -1;
+}
+    </script>
+</body>
+</html>

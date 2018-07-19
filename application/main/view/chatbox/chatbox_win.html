@@ -1,0 +1,233 @@
+﻿<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+        <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+        <title>金麦粒价值发现</title>
+        <link href="__STATIC__/css/Hui.css?v=1" rel="stylesheet" type="text/css" />
+        <script src="__STATIC__/js/H.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/jquery.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/vue.min.js" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/utils.js?v=1" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/ajaxUtil.js?v=1" type="text/javascript"></script>
+        <script src="__STATIC__/js/common/user.js?v=1" type="text/javascript"></script>
+
+        <script src="__STATIC__/js/common/jquery.js"></script>
+        <script src="__STATIC__/js/common/chatwin.js?v=2"></script>
+        <script src="__STATIC__/js/common/iscroll-zoom.js"></script>
+
+        <link rel="stylesheet" href="__STATIC__/ps/photoswipe.css"> 
+        <link rel="stylesheet" href="__STATIC__/ps/default-skin/default-skin.css"> 
+        <script src="__STATIC__/ps/photoswipe.min.js"></script> 
+        <script src="__STATIC__/ps/photoswipe-ui-default.min.js"></script>  
+        <style type="text/css">
+            [v-cloak] {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <header class="H-header H-theme-background-red" id="chatheader">
+            <span  onclick="H.closeWin();" class="H-icon H-position-relative H-display-inline-block H-float-left H-vertical-middle H-theme-font-color-white H-padding-horizontal-left-5 H-z-index-100"><i class="H-iconfont H-icon-arrow-left H-font-size-18 H-vertical-middle"></i><label class="H-display-block H-vertical-middle H-font-size-15">返回</label></span>
+            <div class="H-header-title H-center-all H-font-size-18 H-text-show-row-1 H-theme-font-color-white H-position-absolute H-width-100-percent">{{headertitle}}</div>
+            <!--<span onclick="groupsetting();" class="H-icon H-position-relative H-display-block H-float-right H-vertical-middle H-theme-font-color-white H-padding-horizontal-both-5 H-z-index-1000"><i class="H-iconfont H-icon-bbs H-font-size-18 H-vertical-middle"></i></span>-->
+        </header>
+        <!-- Root element of PhotoSwipe. Must have class pswp. -->
+        <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+            <!-- Background of PhotoSwipe. 
+                 It's a separate element as animating opacity is faster than rgba(). -->
+            <div class="pswp__bg"></div>
+            <!-- Slides wrapper with overflow:hidden. -->
+            <div class="pswp__scroll-wrap">
+                <!-- Container that holds slides. 
+                    PhotoSwipe keeps only 3 of them in the DOM to save memory.
+                    Don't modify these 3 pswp__item elements, data is added later on. -->
+                <div class="pswp__container">
+                    <div class="pswp__item"></div>
+                    <div class="pswp__item"></div>
+                    <div class="pswp__item"></div>
+                </div>
+
+                <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+                <div class="pswp__ui pswp__ui--hidden">
+
+                    <div class="pswp__top-bar">
+
+                        <!--  Controls are self-explanatory. Order can be changed. -->
+
+                        <div class="pswp__counter"></div>
+
+                        <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+<!--                        <button class="pswp__button pswp__button--share" title="Share"></button>-->
+
+                        <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                        <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                        <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                        <!-- element will get class pswp__preloader--active when preloader is running -->
+                        <div class="pswp__preloader">
+                            <div class="pswp__preloader__icn">
+                                <div class="pswp__preloader__cut">
+                                    <div class="pswp__preloader__donut"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                        <div class="pswp__share-tooltip"></div> 
+                    </div>
+
+                    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+                    </button>
+
+                    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+                    </button>
+
+                    <div class="pswp__caption">
+                        <div class="pswp__caption__center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer id="chatfooter" v-cloak>
+            <div class="H-theme-background-color-white H-flexbox-horizontal">
+                <input  type="text" id ='ios'  v-model="msgcontent" class="H-theme-background-color-transparent H-textbox H-vertical-align-middle H-vertical-middle H-font-size-16 H-flex-item H-box-sizing-border-box H-border-none H-outline-none H-padding-12" placeholder="说点什么呗~~" /> 
+                <span @click ='toggle' class="H-vertical-middle H-padding-horizontal-right-10 H-theme-background-color-transparent H-theme-font-color1 H-font-size-14">
+                    发送图片
+                </span>     
+            </div>
+            <div id ="popview" class="H-padding-3" style="display:none">
+                <input type="file" accept="image/*" @change="onFileChange"  style="position:absolute;opacity:0; height: 70px;width: 70px">
+                <img src="__ROOT__/image/logo.png" style="width: 70px; height: 70px" />
+            </div>           
+        </footer>
+
+        <script type="text/javascript">
+            if (!$user.checkLogin(JSON.parse(window.localStorage.getItem("user_info")))) {
+                H.openWin("__ROOT__/index.php/main/index/index");
+                alert("请先登录！");
+                H.closeWin();
+            }
+            var chatVue;
+            var groupid;
+            var user;
+            var isshow = false;
+            window.onload = function () {
+                user = JSON.parse(localStorage.getItem("user_info"));
+                groupid = JSON.parse(localStorage.getItem("groupitem")).group_id;
+                H.openFrameNavOrFoot("chatbox_frm", "__ROOT__/index.php/main/chatbox/chatfrm", "#chatheader", null, "#chatfooter", {bounces: true});
+                var header = new Vue({
+                    el: '#chatheader',
+                    data: {
+                        headertitle: JSON.parse(localStorage.getItem("groupitem")).title
+                    }
+                });
+                chatVue = new Vue({
+                    el: '#chatfooter',
+                    data: {
+                        msgcontent: "",
+                        images: []
+                    },
+                    methods: {
+                        toggle: function () {
+                            if (isshow) {
+                                $("#popview").hide();
+                            } else {
+                                $("#popview").show();
+                            }
+                            isshow = !isshow;
+                        },
+                        sendvideo: function () {
+                            document.getElementById('H-frame').contentWindow.sendVid();
+                        },
+                        onFileChange: function (event) {
+                            var files = event.target.files || event.dataTransfer.files;
+                            if (!files.length)
+                                return;
+                            this.createImage(files);
+                        },
+                        createImage: function (files) {
+                            if (typeof FileReader === 'undefined') {
+                                alert('您的浏览器不支持图片上传，请升级您的浏览器');
+                                return false;
+                            }
+                            var vm = this;
+                            var leng = files.length;
+                            for (var i = 0; i < leng; i++) {
+                                var reader = new FileReader();
+                                reader.readAsDataURL(files[i]);
+                                reader.onload = function (e) {
+                                    vm.images.push(e.target.result);
+                                    // 压缩图片
+                                    $chatwin.cutImg(e, function (viewurl) {
+                                        var loadindex = document.getElementById('H-frame').contentWindow.processload();// 设置发送的预览view并返回在list中的位置
+                                        // 上传图片到服务器并通知融云
+                                        $("#popview").hide();
+                                        var formData = new FormData();
+                                        formData.append('file', files[0]);
+                                        $chatwin.uploadFile(formData, function (ret, err) {
+                                            if (ret.isSuccess) {
+                                                document.getElementById('H-frame').contentWindow.sendImg(groupid, viewurl, ret.imgurl, loadindex);
+                                            }
+                                        });
+                                    });
+                                };
+                            }
+                        }
+                    }
+                });
+//                window.addEventListener("touchstart", function () {
+//                    var myInput = document.getElementById('ios');
+//                    if (myInput == document.activeElement) {
+//                        alert('获取焦点');
+//                    } else {
+//                        alert('未获取焦点');
+//                    }
+//                })
+                $utils.enterListener(function (event) {
+                    if (chatVue.msgcontent !== null && chatVue.msgcontent !== "" && chatVue.msgcontent !== undefined) {
+                        document.getElementById('H-frame').contentWindow.sendMsg(groupid, chatVue.msgcontent);
+                        chatVue.msgcontent = "";
+                    } else {
+                        alert("聊天内容为空！");
+                    }
+                });
+                fixInput();
+            }
+            function groupsetting() {
+//                H.openWin('groupsetting', '__ROOT__/index.php/main/groupsetting/groupsettingwin');
+            }
+            function fixInput() {
+                var interval;
+                //消息框获取焦点
+                $('#ios').focus(function () {
+                    if (isshow)
+                        $("#popview").hide();
+                    interval = setInterval(function () {
+                        document.body.scrollTop = window.innerHeight;
+                    }, 500)
+                })
+                //消息框失去焦点
+                $('#ios').blur(function () {
+                    clearInterval(interval);
+                })
+            }
+            function showPic(items, itemindex) {
+                var pswpElement = document.querySelectorAll('.pswp')[0];
+                // define options (if needed)
+                var options = {
+                    // optionName: 'option value'
+                    // for example:
+                    index: itemindex // start at first slide
+                };
+                // Initializes and opens PhotoSwipe
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, options);
+                gallery.init();
+            }
+        </script>
+    </body>
+</html>

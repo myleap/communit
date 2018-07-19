@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>大汪财经</title>
+        <!--<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">-->
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link href="__STATIC__/vux/vux.min.css" rel="stylesheet" type="text/css" />
+        <link href="__STATIC__/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <style type="text/css">
+            .demo-content {
+                padding: 10px 10px;
+            }
+        </style>
+        <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    </head>
+    <body>
+        <div id="demo">
+            <group title="地址">
+                <x-input label-width="5em" v-model="requesturl" data-required="true" title='请求地址：' placeholder="输入请求链接"></x-input>
+                <cell title="次数" :value="count"></cell> 
+            </group>
+
+            <flexbox>
+                <flexbox-item>
+                    <x-button type="primary" @click.native="startrequest" :show-loading="showloading">开始</x-button>
+                </flexbox-item>
+                <flexbox-item>
+                    <x-button type="warn" @click.native="stop">停止</x-button>
+                </flexbox-item>
+            </flexbox>
+        </div>
+
+        <script src='__STATIC__/vux/vux.min.js'></script>
+        <script src="__STATIC__/js/common/jquery.js" type="text/javascript"></script>
+
+        <script>
+            Vue.component('group', vuxGroup)
+            Vue.component('x-input', vuxXInput)
+            Vue.component('x-button', vuxXButton)
+            Vue.component('cell', vuxCell)
+            Vue.component('flexbox', vuxFlexbox)
+            Vue.component('flexbox-item', vuxFlexboxItem)
+
+            var tagvue = new Vue({
+                el: '#demo',
+                created() {
+                    if (sessionStorage.getItem("sessionurl") == "" || sessionStorage.getItem("sessionurl") == "null") {
+                        this.requesturl = ""
+                    } else {
+                        this.requesturl = sessionStorage.getItem("sessionurl")
+                    }
+                },
+
+                methods: {
+                    startrequest() {
+                        var vue = this;
+                        console.log(vue.requesturl)
+//                        if (vue.requesturl == "" || vue.requesturl == undefined || vue.requesturl == "null") {
+//                            alert("请输入有效的链接！")
+//                            return;
+//                        }
+                        sessionStorage.setItem("sessionurl", vue.requesturl)
+//                        if (vue.showloading) {
+//                            return;
+//                        }
+                        vue.showloading = true;
+//                        vue.timmer = setInterval(function () {
+//                            vue.count++
+//                            var params = {purl: vue.requesturl}
+//                            $.ajax({
+////                            url: this.requesturl,
+//                                type: "POST",
+//                                url: "https://www.myleap.cn/community/public/index.php/east/east/request",
+//                                data: params,
+//                                error: function (request) {
+//                                    vue.stop()
+//                                    alert("请确认地址有效");
+//                                },
+//                                success: function (data) {
+//                                    console.log("success:");
+//                                }
+//                            });
+//                        }, 500)
+
+                        if (typeof (Worker) !== "undefined")
+                        {
+                            vue.worker = new Worker("__STATIC__/js/worker.js");
+                            vue.worker.onmessage = function (event) {
+//                                document.getElementById("result").innerHTML = event.data;
+                                console.log(event.data)
+                                vue.count = event.data + vue.tempcount;
+                                var params = {purl: vue.requesturl}
+                                $.ajax({
+                                    type: "GET",
+                                    url: "http://api.cninfo.com.cn/service/dataItem?codelist=sh1A0001%2Csz399001%2Csz399005%2Csz399006&_=1529890755143",
+                                    dataType: "jsonp",
+                                    error: function (request) {
+                                        vue.stop()
+                                        alert("请确认地址有效");
+                                    },
+                                    success: function (data) {
+                                        console.log("success:");
+                                    }
+                                });
+                            };
+                        } 
+                        else{
+                            alert("Sorry, your browser does not support Web Workers...")
+                            //"Sorry, your browser does not support Web Workers...";
+                        }
+                    },
+                    stop() {
+                        this.showloading = false;
+                        this.worker.terminate();
+                        this.tempcount = this.count
+//                        clearInterval(this.timmer)
+                    }
+
+                },
+                data() {
+                    return {
+                        requesturl: "",
+                        showloading: false,
+                        count: 0,
+                        tempcount: 0
+                    }
+                }
+            })
+        </script>
+    </body>
+</html>

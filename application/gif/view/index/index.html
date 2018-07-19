@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>canvas帧--实现动画</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link href="__STATIC__/vux/vux.min.css" rel="stylesheet" type="text/css" />
+        <link href="__STATIC__/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <style>
+            .img-box{  
+                width:400px;
+                height:100%;
+                float:none;
+                margin-left:auto;
+                margin-right:auto; 
+            }  
+            .sub-item {
+                color: #888;
+            }
+
+            .left {
+                float: left;
+                width: 65%;
+                height: 300px;
+                background-color: red;
+            }
+            .right {
+                background-color: orange;
+                margin-left: 35%;
+                height: 100%;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id="demo">
+            <div class="img-box left" >
+                <img src="__ROOT__/image/loading.gif" style="width:100%;height:auto;">
+            </div>
+            <div class="right">
+                <scroller lock-x scrollbar-y  ref="scroller">
+                    <group title="地区及公司">
+                        <cell
+                            title="北京"
+                            is-link
+                            :border-intent="false"
+                            :arrow-direction="showContent001 ? 'up' : 'down'"
+                            @click.native="showContent001 = !showContent001"></cell>
+
+                        <template v-if="showContent001">
+                            <cell-box :border-intent="false" class="sub-item" is-link>content 001</cell-box>
+                            <cell-box class="sub-item" is-link>content 001</cell-box>
+                            <cell-box class="sub-item" is-link>content 001</cell-box>
+                        </template>
+
+                        <cell
+                            title="深圳"
+                            is-link
+                            :border-intent="false"
+                            :arrow-direction="showContent002 ? 'up' : 'down'"
+                            @click.native="showContent002 = !showContent002"></cell>
+
+                        <template v-if="showContent002">
+                            <cell-form-preview 
+                                :border-intent="false" 
+                                :list="list">
+
+                            </cell-form-preview>
+                        </template>
+
+                        <cell
+                            title="上海"
+                            is-link
+                            :border-intent="false"
+                            :arrow-direction="showContent003 ? 'up' : 'down'"
+                            @click.native="showContent003 = !showContent003"></cell>
+
+                        <template v-if="showContent003">
+                            <cell-box :border-intent="false" class="sub-item" >I'm content 003</cell-box>
+                        </template>
+                    </group>
+                </scroller>
+            </div>
+
+        </div>
+        <script src="https://unpkg.com/vue/dist/vue.js"></script>
+        <script src='__STATIC__/vux/vux.min.js'></script>
+        <script src="__STATIC__/js/common/jquery.js" type="text/javascript"></script>
+        <script>
+            Vue.component('group', vuxGroup)
+            Vue.component('scroller', vuxScroller)
+            Vue.component('x-input', vuxXInput)
+            Vue.component('x-button', vuxXButton)
+            Vue.component('cell', vuxCell)
+            Vue.component('cell-box', vuxCellBox)
+            Vue.component('cell-form-preview', vuxCellFormPreview)
+            Vue.component('flexbox', vuxFlexbox)
+            Vue.component('flexbox-item', vuxFlexboxItem)
+            var tagvue = new Vue({
+                el: '#demo',
+                created: function () {
+                },
+
+                methods: {
+
+                    startrequest() {
+
+                        var vue = this;
+                        if (vue.requesturl == "") {
+                            alert("请输入有效的链接！")
+                            return;
+                        }
+                        if (vue.showloading) {
+                            return;
+                        }
+                        vue.showloading = true;
+                        vue.timmer = setInterval(function () {
+                            vue.count++
+                            var params = {purl: vue.requesturl}
+                            $.ajax({
+                                //                            url: this.requesturl,
+                                type: "POST",
+                                url: "https://www.myleap.cn/community/public/index.php/east/east/request",
+                                data: params,
+                                error: function (request) {
+                                    vue.stop()
+                                    alert("请确认地址有效");
+                                },
+                                success: function (data) {
+                                    console.log("success:");
+                                }
+                            });
+                        }, 500)
+                    },
+                    stop() {
+                        this.showloading = false;
+                        clearInterval(this.timmer)
+                    }
+
+                },
+                data() {
+                    return {
+                        requesturl: "",
+                        showloading: false,
+                        count: 0,
+                        timmer: {},
+                        list: [{
+                                label: 'Apple',
+                                value: '3.29'
+                            }, {
+                                label: 'Banana',
+                                value: '1.04'
+                            }, {
+                                label: 'Fish',
+                                value: '8.00'
+                            }],
+                        showContent001: false,
+                        showContent002: false,
+                        showContent003: false,
+                        showContent004: false
+                    }
+                }
+            })
+        </script>
+    </body>
+</html>
