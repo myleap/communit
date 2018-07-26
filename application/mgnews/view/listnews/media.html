@@ -29,7 +29,7 @@ and open the template in the editor.
 
         <div id="news"  v-cloak>
             <div style="width:100%;">
-                <button v-if="isadmin" type="button" class="btn btn-warning" disablead="false" v-on:click ="send" style="width: 100%;margin: 5px 0 5px 0">发送</button>
+                <button v-if="isadmin" type="button" class="btn btn-warning" disablead="false" v-on:click ="send" style="width: 100%;margin: 5px 0 5px 0">{{butitle}}</button>
             </div>
             <div v-for="(item,index) in list ">
                 <div  v-on:click="showpdf(item)" class="H-flexbox-horizontal H-theme-background-color-white H-border-vertical-bottom-after H-clear-both">
@@ -63,7 +63,8 @@ H.ready(function () {
             list: [],
             isadmin: false,
             isnull: false,
-            noticeinfo: ""
+            noticeinfo: "",
+            butitle: "发送"
         },
         methods: {
             showpdf: function (item) {
@@ -114,6 +115,10 @@ function queryMsgs(vue) {
             if (ret.ishide && ret.ishide == 1) {
                 vue.isadmin = true;
             }
+            //  是否已发送
+            if (ret.isdone == "1") {
+                vue.butitle = "已发送";
+            }
             if (ret.normal == 1) {
 
                 if ($utils.isNullOrEmpty(ret.objects) || ret.objects.length == 0) {
@@ -150,6 +155,7 @@ function sendnews(vue) {
     $ajaxutil.dopost("Collect/send_project_group_news", data, function (ret, err) {
         if (ret && ret.resCode == 200) {
             alert('发送成功');
+            vue.butitle = "已发送";
         } else if (err) {
             alert(JSON.stringify(err));
         }
