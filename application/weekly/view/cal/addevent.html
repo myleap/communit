@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>添加事件</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link href="__STATIC__/vux/vux.min.css" rel="stylesheet" type="text/css" />
+        <script src="https://unpkg.com/vue/dist/vue.js"></script>
+        <style type="text/css">
+
+        </style>
+    </head>
+    <body>
+        <div id="demo">    
+            <group title="添加事件">
+                <x-input title="事件标题"  :required = "true" placeholder="必须填写事件标题" v-model="eventtitle" ref="input01"></x-input>
+
+                <popup-picker  title="事件类型" 
+                               :data="typelist" 
+                               :columns="2"
+                               v-model="remind_id" 
+                               ref="pickertype"
+                               show-name>          
+                </popup-picker>
+                <datetime v-model="valuestart" 
+                          format="YYYY-MM-DD HH:mm" 
+                          reqired ="true"
+                          @on-change="change" 
+                          :title="start">
+                </datetime>
+                <datetime v-model="valueend" 
+                          format="YYYY-MM-DD HH:mm" 
+                          reqired ="true"
+                          @on-change="change" 
+                          :title="end">
+                </datetime>
+                <group title="接收通知的手机号">
+                    <x-input title="手机号码" mask="999 9999 9999" v-model="telno" :max="13" is-type="china-mobile" ref="noinput"></x-input>
+                    <!--                    <cell title="value" :value="telno"></cell>-->
+                </group>
+                <x-button type="primary" @click.native="save">提交</x-button>
+            </group>    
+
+
+        </div>
+
+        <script src='__STATIC__/vux/vux.min.js'></script>
+        <script src='__STATIC__/fc/lib/jquery.min.js'></script>
+        <script>
+            Vue.component('group', vuxGroup)
+            Vue.component('x-input', vuxXInput)
+            Vue.component('datetime', vuxDatetime)
+            Vue.component('popup-picker', vuxPopupPicker)
+            Vue.component('x-button', vuxXButton)
+            Vue.component('cell', vuxCell)
+            Vue.component('x-dialog', vuxXDialog)
+            var user = JSON.parse(localStorage.getItem("userinfo"));
+            new Vue({
+                el: '#demo',
+                methods: {
+                    change(value) {
+                        console.log('change', value)
+                    },
+                    add(value) {
+                        console.log('add', add)
+                    },
+                    save() {
+                        if (this.eventtitle.length == 0 || !this.$refs.input01.valid) {
+                            alert(this.$refs.input01.valid + "请输入事件标题！")
+                            return
+                        }
+                        if (this.telno.length != 0 && !this.$refs.noinput.valid) {
+                            alert("请检查手机号码格式")
+                            return
+                        }
+                        var params = {}
+                        params.uid = user.id;
+                        params.time1 = this.valuestart
+                        params.time2 = this.valueend
+                        params.title = this.eventtitle
+                        params.remind_id = this.remind_id[1]
+                        params.tel = "15986758007"
+                        console.log(params)
+                        $.ajax({
+                            cache: true,
+                            type: "POST",
+                            url: "https://www.myleap.cn/communityCMFX/index.php/Portal/Date/addDealTime",
+                            data: params, // 你的formid
+                            async: false,
+                            error: function (request) {
+                                alert("Connection error");
+                            },
+                            success: function (data) {
+                                console.log("创建成功" + JSON.stringify(data));
+                                window.history.back();
+                            }
+                        });
+                    }
+                },
+                data() {
+                    return {
+
+                        start: "开始时间",
+                        valuestart: "",
+                        end: "结束时间",
+                        valueend: "",
+                        telno: '',
+                        typelist: [{
+                                name: '深市',
+                                value: "s",
+                                parent: 0
+                            },
+                            {
+                                name: '沪市',
+                                value: "h",
+                                parent: 0
+                            },
+                            {
+                                name: '沪市-召开临时股东大会',
+                                value: "1",
+                                parent: "h"
+                            },
+                            {
+                                name: '沪市-召开年度股东大会',
+                                value: "2",
+                                parent: "h"
+                            },
+                            {
+                                name: '沪市-定期报告窗口期',
+                                value: "3",
+                                parent: "h"
+                            },
+                            {
+                                name: '沪市-业绩预告、业绩快报窗口期',
+                                value: "4",
+                                parent: "h"
+                            },
+                            {
+                                name: '沪市-权益分派实施（无上市可转债或有上市可转债但尚未进入转股期）',
+                                value: "5",
+                                parent: "h"
+                            },
+                            {
+                                name: '沪市-权益分派实施（有上市可转债且进入转股期）',
+                                value: "6",
+                                parent: "h"
+                            },
+                            {
+                                name: '沪市-召开年度董事会',
+                                value: "7",
+                                parent: "h"
+                            },
+                            {
+                                name: '沪市-召开年度监事会',
+                                value: "8",
+                                parent: "h"
+                            },
+                            {
+                                name: '深市-召开临时股东大会',
+                                value: "9",
+                                parent: "s"
+                            },
+                            {
+                                name: '深市-召开年度股东大会',
+                                value: "10",
+                                parent: "s"
+                            },
+                            {
+                                name: '深市-定期报告窗口期',
+                                value: "11",
+                                parent: "s"
+                            },
+                            {
+                                name: '深市-业绩预告、业绩快报窗口期',
+                                value: "12",
+                                parent: "s"
+                            },
+                            {
+                                name: '深市-权益分派实施',
+                                value: "13",
+                                parent: "s"
+                            },
+                            {
+                                name: '深市-召开年度董事会',
+                                value: "14",
+                                parent: "s"
+                            },
+                            {
+                                name: '深市-召开年度监事会',
+                                value: "15",
+                                parent: "s"
+                            }
+
+                        ],
+                        remind_id: [],
+                        eventtitle: ""
+                    }
+                }
+            })
+        </script>
+    </body>
+</html>
